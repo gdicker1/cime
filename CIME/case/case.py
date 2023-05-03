@@ -12,6 +12,7 @@ from CIME.XML.standard_module_setup import *
 
 # pylint: disable=import-error,redefined-builtin
 from CIME import utils
+from CIME.config import Config
 from CIME.utils import expect, get_cime_root, append_status
 from CIME.utils import convert_to_type, get_model, set_model
 from CIME.utils import get_project, get_charge_account, check_name
@@ -42,6 +43,8 @@ from CIME.user_mod_support import apply_user_mods
 from CIME.aprun import get_aprun_cmd_for_case
 
 logger = logging.getLogger(__name__)
+
+config = Config.instance()
 
 
 class Case(object):
@@ -128,6 +131,12 @@ class Case(object):
         # Propagate `srcroot` to `GenericXML` to resolve $SRCROOT
         if srcroot is not None:
             utils.GLOBAL["SRCROOT"] = srcroot
+
+            # srcroot may not be known yet, in the instance of creating
+            # a new case
+            customize_path = os.path.join(srcroot, "cime_config", "customize")
+
+            config.load(customize_path)
 
         if record:
             self.record_cmd()
@@ -218,13 +227,11 @@ class Case(object):
         for comp in comp_classes:
             self.async_io[comp] = self.get_value("PIO_ASYNC_INTERFACE", subgroup=comp)
 
-        if any(self.async_io.values()):
-            self.iotasks = 1
-            for comp in comp_classes:
-                if self.async_io[comp]:
-                    self.iotasks = max(
-                        self.iotasks, self.get_value("PIO_NUMTASKS", subgroup=comp)
-                    )
+        self.iotasks = (
+            self.get_value("PIO_ASYNCIO_NTASKS")
+            if self.get_value("PIO_ASYNCIO_NTASKS")
+            else 0
+        )
 
         self.thread_count = env_mach_pes.get_max_thread_count(comp_classes)
 
@@ -247,7 +254,7 @@ class Case(object):
             self.spare_nodes = env_mach_pes.get_spare_nodes(self.num_nodes)
             self.num_nodes += self.spare_nodes
         else:
-            self.total_tasks = env_mach_pes.get_total_tasks(comp_classes) + self.iotasks
+            self.total_tasks = env_mach_pes.get_total_tasks(comp_classes)
             self.tasks_per_node = env_mach_pes.get_tasks_per_node(
                 self.total_tasks, self.thread_count
             )
@@ -634,18 +641,18 @@ class Case(object):
         )
 
         self.set_lookup_value("COMP_INTERFACE", self._comp_interface)
-        if self._cime_model == "ufs":
-            ufs_driver = os.environ.get("UFS_DRIVER")
-            attribute = None
-            if ufs_driver:
-                attribute = {"component": "nems"}
-            comp_root_dir_cpl = files.get_value(
-                "COMP_ROOT_DIR_CPL", attribute=attribute
-            )
-        elif self._cime_model == "cesm":
-            comp_root_dir_cpl = files.get_value("COMP_ROOT_DIR_CPL")
+        if config.set_comp_root_dir_cpl:
+            if config.use_nems_comp_root_dir:
+                ufs_driver = os.environ.get("UFS_DRIVER")
+                attribute = None
+                if ufs_driver:
+                    attribute = {"component": "nems"}
+                comp_root_dir_cpl = files.get_value(
+                    "COMP_ROOT_DIR_CPL", attribute=attribute
+                )
+            else:
+                comp_root_dir_cpl = files.get_value("COMP_ROOT_DIR_CPL")
 
-        if self._cime_model in ("cesm", "ufs"):
             self.set_lookup_value("COMP_ROOT_DIR_CPL", comp_root_dir_cpl)
 
         # Loop through all of the files listed in COMPSETS_SPEC_FILE and find the file
@@ -1218,9 +1225,11 @@ class Case(object):
             key = "NTASKS_{}".format(compclass)
             if key not in pes_ntasks:
                 mach_pes_obj.set_value(key, 1)
+
             key = "NTHRDS_{}".format(compclass)
-            if compclass not in pes_nthrds:
-                mach_pes_obj.set_value(compclass, 1)
+            if key not in pes_nthrds:
+                mach_pes_obj.set_value(key, 1)
+
         if multi_driver:
             mach_pes_obj.set_value("MULTI_DRIVER", True)
 
@@ -1489,7 +1498,7 @@ class Case(object):
         # Turn on short term archiving as cesm default setting
         model = get_model()
         self.set_model_version(model)
-        if model == "cesm" and not test:
+        if config.default_short_term_archiving and not test:
             self.set_value("DOUT_S", True)
             self.set_value("TIMER_LEVEL", 4)
 
@@ -1680,7 +1689,7 @@ class Case(object):
                     )
                 )
 
-        if get_model() == "e3sm":
+        if config.copy_e3sm_tools:
             if os.path.exists(os.path.join(machines_dir, "syslog.{}".format(machine))):
                 safe_copy(
                     os.path.join(machines_dir, "syslog.{}".format(machine)),
@@ -1692,10 +1701,12 @@ class Case(object):
                     os.path.join(casetools, "mach_syslog"),
                 )
 
-            safe_copy(os.path.join(toolsdir, "e3sm_compile_wrap.py"), casetools)
+            srcroot = self.get_value("SRCROOT")
+            customize_path = os.path.join(srcroot, "cime_config", "customize")
+            safe_copy(os.path.join(customize_path, "e3sm_compile_wrap.py"), casetools)
 
         # add archive_metadata to the CASEROOT but only for CESM
-        if get_model() == "cesm":
+        if config.copy_cesm_tools:
             try:
                 exefile = os.path.join(toolsdir, "archive_metadata")
                 destfile = os.path.join(self._caseroot, os.path.basename(exefile))
@@ -1745,7 +1756,7 @@ leveraging version control (git or svn).
                 with open(readme_file, "w") as fd:
                     fd.write(readme_message.format(component=component))
 
-        if get_model() == "cesm":
+        if config.copy_cism_source_mods:
             # Note: this is CESM specific, given that we are referencing cism explitly
             if "cism" in components:
                 directory = os.path.join(
@@ -1932,6 +1943,10 @@ directory, NOT in this subdirectory."""
 
             return result
 
+    def get_job_id(self, output):
+        env_batch = self.get_env("batch")
+        return env_batch.get_job_id(output)
+
     def report_job_status(self):
         jobmap = self.get_job_info()
         if not jobmap:
@@ -1998,15 +2013,25 @@ directory, NOT in this subdirectory."""
             )
             run_misc_suffix = custom_run_misc_suffix
 
+        aprun_mode = env_mach_specific.get_aprun_mode(mpi_attribs)
+
         # special case for aprun
         if (
             executable is not None
             and "aprun" in executable
-            and not "theta" in self.get_value("MACH")
+            and aprun_mode != "ignore"
+            # and not "theta" in self.get_value("MACH")
         ):
-            aprun_args, num_nodes = get_aprun_cmd_for_case(
-                self, run_exe, overrides=overrides
-            )[0:2]
+            extra_args = env_mach_specific.get_aprun_args(
+                self, mpi_attribs, job, overrides=overrides
+            )
+
+            aprun_args, num_nodes, _, _, _ = get_aprun_cmd_for_case(
+                self,
+                run_exe,
+                overrides=overrides,
+                extra_args=extra_args,
+            )
             if job in ("case.run", "case.test"):
                 expect(
                     (num_nodes + self.spare_nodes) == self.num_nodes,
@@ -2024,7 +2049,7 @@ directory, NOT in this subdirectory."""
             mpi_arg_string += " : "
 
         ngpus_per_node = self.get_value("NGPUS_PER_NODE")
-        if ngpus_per_node and ngpus_per_node > 0 and self._cime_model != "e3sm":
+        if ngpus_per_node and ngpus_per_node > 0 and config.gpus_use_set_device_rank:
             # 1. this setting is tested on Casper only and may not work on other machines
             # 2. need to be revisited in the future for a more adaptable implementation
             rundir = self.get_value("RUNDIR")
@@ -2306,6 +2331,10 @@ directory, NOT in this subdirectory."""
             # Propagate to `GenericXML` to resolve $SRCROOT
             utils.GLOBAL["SRCROOT"] = srcroot
 
+            customize_path = os.path.join(srcroot, "cime_config", "customize")
+
+            config.load(customize_path)
+
             # If any of the top level user_mods_dirs contain a config_grids.xml file and
             # gridfile was not set on the command line, use it. However, if there are
             # multiple user_mods_dirs, it is an error for more than one of them to contain
@@ -2440,6 +2469,7 @@ directory, NOT in this subdirectory."""
             job = self.get_first_job()
 
         job_id_to_cmd = self.submit_jobs(dry_run=True, job=job)
+
         env_batch = self.get_env("batch")
         for job_id, cmd in job_id_to_cmd:
             write("  FOR JOB: {}".format(job_id))

@@ -2,6 +2,7 @@
 Interface to the env_batch.xml file.  This class inherits from EnvBase
 """
 
+import os
 from CIME.XML.standard_module_setup import *
 from CIME.XML.env_base import EnvBase
 from CIME import utils
@@ -18,6 +19,7 @@ from CIME.utils import (
 from CIME.locked_files import lock_file, unlock_file
 from collections import OrderedDict
 import stat, re, math
+import pathlib
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +76,6 @@ class EnvBatch(EnvBase):
         """
         Must default subgroup to something in order to provide single return value
         """
-
         value = None
         node = self.get_optional_child(item, attribute)
         if item in ("BATCH_SYSTEM", "PROJECT_REQUIRED"):
@@ -557,72 +558,151 @@ class EnvBatch(EnvBase):
         """
         return a list of touples (flag, name)
         """
-        submitargs = " "
         bs_nodes = self.get_children("batch_system")
+
+        submit_arg_nodes = self._get_arg_nodes(case, bs_nodes)
+
+        submitargs = self._process_args(case, submit_arg_nodes, job)
+
+        return submitargs
+
+    def _get_arg_nodes(self, case, bs_nodes):
         submit_arg_nodes = []
 
         for node in bs_nodes:
             sanode = self.get_optional_child("submit_args", root=node)
             if sanode is not None:
-                submit_arg_nodes += self.get_children("arg", root=sanode)
+                arg_nodes = self.get_children("arg", root=sanode)
+
+                if len(arg_nodes) > 0:
+                    check_paths = [case.get_value("BATCH_SPEC_FILE")]
+
+                    user_config_path = os.path.join(
+                        pathlib.Path().home(), ".cime", "config_batch.xml"
+                    )
+
+                    if os.path.exists(user_config_path):
+                        check_paths.append(user_config_path)
+
+                    logger.warning(
+                        'Deprecated "arg" node detected in {}, check files {}'.format(
+                            self.filename, ", ".join(check_paths)
+                        )
+                    )
+
+                submit_arg_nodes += arg_nodes
+
+                submit_arg_nodes += self.get_children("argument", root=sanode)
+
+        return submit_arg_nodes
+
+    def _process_args(self, case, submit_arg_nodes, job):
+        submitargs = " "
 
         for arg in submit_arg_nodes:
-            flag = self.get(arg, "flag")
-            name = self.get(arg, "name")
+            name = None
+            flag = None
+            try:
+                flag, name = self._get_argument(case, arg)
+            except ValueError:
+                continue
+
             if self._batchtype == "cobalt" and job == "case.st_archive":
                 if flag == "-n":
                     name = "task_count"
+
                 if flag == "--mode":
                     continue
 
             if name is None:
-                submitargs += " {}".format(flag)
-            else:
-                if name.startswith("$"):
-                    name = name[1:]
-
-                if "$" in name:
-                    # We have a complex expression and must rely on get_resolved_value.
-                    # Hopefully, none of the values require subgroup
-                    val = case.get_resolved_value(name)
+                if " " in flag:
+                    flag, name = flag.split()
+                if name:
+                    if "$" in name:
+                        rflag = self._resolve_argument(case, flag, name, job)
+                        if len(rflag) > len(flag):
+                            submitargs += " {}".format(rflag)
+                    else:
+                        submitargs += " {} {}".format(flag, name)
                 else:
-                    val = case.get_value(name, subgroup=job)
+                    submitargs += " {}".format(flag)
+            else:
+                try:
+                    submitargs += self._resolve_argument(case, flag, name, job)
+                except ValueError:
+                    continue
 
-                if val is not None and len(str(val)) > 0 and val != "None":
-                    # Try to evaluate val if it contains any whitespace
-                    if " " in val:
-                        try:
-                            rval = eval(val)
-                        except Exception:
-                            rval = val
+        return submitargs
+
+    def _get_argument(self, case, arg):
+        flag = self.get(arg, "flag")
+
+        name = self.get(arg, "name")
+
+        # if flag is None then we dealing with new `argument`
+        if flag is None:
+            flag = self.text(arg)
+            job_queue_restriction = self.get(arg, "job_queue")
+
+            if (
+                job_queue_restriction is not None
+                and job_queue_restriction != case.get_value("JOB_QUEUE")
+            ):
+                raise ValueError()
+
+        return flag, name
+
+    def _resolve_argument(self, case, flag, name, job):
+        submitargs = ""
+        logger.debug("name is {}".format(name))
+        # if name.startswith("$"):
+        #    name = name[1:]
+
+        if "$" in name:
+            parts = name.split("$")
+            logger.debug("parts are {}".format(parts))
+            val = ""
+            for part in parts:
+                if part != "":
+                    logger.debug("part is {}".format(part))
+                    resolved = case.get_value(part, subgroup=job)
+                    if resolved:
+                        val += resolved
                     else:
-                        rval = val
+                        val += part
+            logger.debug("val is {}".format(name))
+            val = case.get_resolved_value(val)
+        else:
+            val = case.get_value(name, subgroup=job)
 
-                    # We don't want floating-point data
-                    try:
-                        rval = int(round(float(rval)))
-                    except ValueError:
-                        pass
+        if val is not None and len(str(val)) > 0 and val != "None":
+            # Try to evaluate val if it contains any whitespace
+            if " " in val:
+                try:
+                    rval = eval(val)
+                except Exception:
+                    rval = val
+            else:
+                rval = val
 
-                    # need a correction for tasks per node
-                    if flag == "-n" and rval <= 0:
-                        rval = 1
+            # We don't want floating-point data (ignore anything else)
+            if str(rval).replace(".", "", 1).isdigit():
+                rval = int(round(float(rval)))
 
-                    if (
-                        flag == "-q"
-                        and rval == "batch"
-                        and case.get_value("MACH") == "blues"
-                    ):
-                        # Special case. Do not provide '-q batch' for blues
-                        continue
+            # need a correction for tasks per node
+            if flag == "-n" and rval <= 0:
+                rval = 1
 
-                    if (
-                        flag.rfind("=", len(flag) - 1, len(flag)) >= 0
-                        or flag.rfind(":", len(flag) - 1, len(flag)) >= 0
-                    ):
-                        submitargs += " {}{}".format(flag, str(rval).strip())
-                    else:
-                        submitargs += " {} {}".format(flag, str(rval).strip())
+            if flag == "-q" and rval == "batch" and case.get_value("MACH") == "blues":
+                # Special case. Do not provide '-q batch' for blues
+                raise ValueError()
+            if (
+                flag.rfind("=", len(flag) - 1, len(flag)) >= 0
+                or flag.rfind(":", len(flag) - 1, len(flag)) >= 0
+            ):
+                submitargs = " {}{}".format(flag, str(rval).strip())
+            else:
+                submitargs = " {} {}".format(flag, str(rval).strip())
 
         return submitargs
 
@@ -1037,9 +1117,13 @@ class EnvBatch(EnvBase):
 
     def get_job_id(self, output):
         jobid_pattern = self.get_value("jobid_pattern", subgroup=None)
-        expect(
-            jobid_pattern is not None, "Could not find jobid_pattern in env_batch.xml"
-        )
+        if self._batchtype and self._batchtype != "none":
+            expect(
+                jobid_pattern is not None,
+                "Could not find jobid_pattern in env_batch.xml",
+            )
+        else:
+            return output
         search_match = re.search(jobid_pattern, output)
         expect(
             search_match is not None,

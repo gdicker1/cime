@@ -2,11 +2,11 @@
 case_run is a member of Class Case
 '"""
 from CIME.XML.standard_module_setup import *
+from CIME.config import Config
 from CIME.utils import gzip_existing_file, new_lid, run_and_log_case_status
 from CIME.utils import run_sub_or_cmd, append_status, safe_copy, model_log, CIMEError
 from CIME.utils import get_model, batch_jobid
 from CIME.get_timing import get_timing
-from CIME.provenance import save_prerun_provenance, save_postrun_provenance
 
 import shutil, time, sys, os, glob
 
@@ -26,8 +26,9 @@ def _pre_run_check(case, lid, skip_pnl=False, da_cycle=0):
     rundir = case.get_value("RUNDIR")
 
     if case.get_value("TESTCASE") == "PFS":
-        env_mach_pes = os.path.join(caseroot, "env_mach_pes.xml")
-        safe_copy(env_mach_pes, "{}.{}".format(env_mach_pes, lid))
+        for filename in ("env_mach_pes.xml", "software_environment.txt"):
+            fullpath = os.path.join(caseroot, filename)
+            safe_copy(fullpath, "{}.{}".format(filename, lid))
 
     # check for locked files, may impact BUILD_COMPLETE
     skip = None
@@ -144,7 +145,10 @@ def _run_model_impl(case, lid, skip_pnl=False, da_cycle=0):
                 time.strftime("%Y-%m-%d %H:%M:%S")
             ),
         )
-        save_prerun_provenance(case)
+        try:
+            Config.instance().save_prerun_provenance(case)
+        except AttributeError:
+            logger.debug("No hook for saving prerun provenance was executed")
         model_log(
             "e3sm",
             logger,
@@ -234,7 +238,7 @@ def _run_model_impl(case, lid, skip_pnl=False, da_cycle=0):
                         case.case_st_archive(resubmit=False)
                         case.restore_from_archive()
 
-                    lid = new_lid()
+                    lid = new_lid(case=case)
                     case.create_namelists()
 
         if not cmd_success and not loop:
@@ -432,7 +436,7 @@ def case_run(self, skip_pnl=False, set_continue_run=False, submit_resubmits=Fals
     # Set up the run, run the model, do the postrun steps
 
     # set up the LID
-    lid = new_lid()
+    lid = new_lid(case=self)
 
     prerun_script = self.get_value("PRERUN_SCRIPT")
     if prerun_script:
@@ -536,7 +540,10 @@ def case_run(self, skip_pnl=False, set_continue_run=False, submit_resubmits=Fals
                 time.strftime("%Y-%m-%d %H:%M:%S")
             ),
         )
-        save_postrun_provenance(self)
+        try:
+            Config.instance().save_postrun_provenance(self, lid)
+        except AttributeError:
+            logger.debug("No hook for saving postrun provenance was executed")
         model_log(
             "e3sm",
             logger,
