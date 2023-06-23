@@ -224,7 +224,11 @@ class TestScheduler(object):
         self._input_dir = input_dir
         self._pesfile = pesfile
         self._allow_baseline_overwrite = allow_baseline_overwrite
-        self._allow_pnl = allow_pnl
+        self._single_exe = single_exe
+        if self._single_exe:
+            self._allow_pnl = True
+        else:
+            self._allow_pnl = allow_pnl
         self._non_local = non_local
         self._build_groups = []
         self._workflow = workflow
@@ -437,7 +441,7 @@ class TestScheduler(object):
 
         # Setup build groups
         if single_exe:
-            self._build_groups = [self._tests]
+            self._build_groups = [tuple(self._tests.keys())]
         elif self._config.share_exes:
             # Any test that's in a shared-enabled suite with other tests should share exes
             self._build_groups = get_build_groups(self._tests)
@@ -994,6 +998,17 @@ class TestScheduler(object):
                 cmdstat in [0, TESTS_FAILED_ERR_CODE],
                 "Fatal error in case.cmpgen_namelists: {}".format(output),
             )
+
+        if self._single_exe:
+            with Case(self._get_test_dir(test), read_only=False) as case:
+                tests = Tests()
+
+                try:
+                    tests.support_single_exe(case)
+                except Exception:
+                    self._update_test_status_file(test, SETUP_PHASE, TEST_FAIL_STATUS)
+
+                    raise
 
         return rv
 

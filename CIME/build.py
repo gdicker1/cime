@@ -49,7 +49,13 @@ _CMD_ARGS_FOR_BUILD = (
     "USE_ESMF_LIB",
     "USE_MOAB",
     "CAM_CONFIG_OPTS",
+    "COMP_ATM",
+    "COMP_ICE",
+    "COMP_GLC",
     "COMP_LND",
+    "COMP_OCN",
+    "COMP_ROF",
+    "COMP_WAV",
     "COMPARE_TO_NUOPC",
     "HOMME_TARGET",
     "OCN_SUBMODEL",
@@ -118,7 +124,7 @@ class CmakeTmpBuildDir(object):
             )
 
         cmake_args = (
-            get_standard_cmake_args(case, "DO_NOT_USE", shared_lib=True)
+            get_standard_cmake_args(case, "DO_NOT_USE")
             if cmake_args is None
             else cmake_args
         )
@@ -165,6 +171,7 @@ def generate_makefile_macro(case, caseroot):
                 "gptl",
                 "csm_share",
                 "csm_share_cpl7",
+                "mpi-serial",
             ]
         )
         cmake_macro = os.path.join(caseroot, "Macros.cmake")
@@ -233,7 +240,7 @@ def _get_compset_comps(case):
     return comps
 
 
-def get_standard_cmake_args(case, sharedpath, shared_lib=False):
+def get_standard_cmake_args(case, sharedpath):
     cmake_args = "-DCIME_MODEL={} ".format(case.get_value("MODEL"))
     cmake_args += "-DSRC_ROOT={} ".format(case.get_value("SRCROOT"))
     cmake_args += " -Dcompile_threaded={} ".format(
@@ -249,7 +256,9 @@ def get_standard_cmake_args(case, sharedpath, shared_lib=False):
         os.path.join(case.get_value("EXEROOT"), sharedpath)
     )
 
-    if not shared_lib:
+    # if sharedlibs are common to entire suite, they cannot be customized
+    # per case/compset
+    if not config.common_sharedlibroot:
         cmake_args += " -DUSE_KOKKOS={} ".format(stringify_bool(uses_kokkos(case)))
         comps = _get_compset_comps(case)
         cmake_args += " -DCOMP_NAMES='{}' ".format(";".join(comps))
@@ -731,6 +740,8 @@ def _build_libraries(
         libs = ["gptl", "mct", "pio", "csm_share"]
     elif case.get_value("MODEL") == "cesm":
         libs = ["gptl", "mct", "pio", "csm_share", "csm_share_cpl7"]
+    elif case.get_value("MODEL") == "e3sm":
+        libs = ["gptl", "mct", "spio", "csm_share"]
     else:
         libs = ["gptl", "mct", "pio", "csm_share"]
 

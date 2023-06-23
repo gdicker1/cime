@@ -224,8 +224,11 @@ class Case(object):
         comp_classes = self.get_values("COMP_CLASSES")
         max_mpitasks_per_node = self.get_value("MAX_MPITASKS_PER_NODE")
         self.async_io = {}
+        asyncio = False
         for comp in comp_classes:
             self.async_io[comp] = self.get_value("PIO_ASYNC_INTERFACE", subgroup=comp)
+            if self.async_io[comp]:
+                asyncio = True
 
         self.iotasks = (
             self.get_value("PIO_ASYNCIO_NTASKS")
@@ -254,7 +257,7 @@ class Case(object):
             self.spare_nodes = env_mach_pes.get_spare_nodes(self.num_nodes)
             self.num_nodes += self.spare_nodes
         else:
-            self.total_tasks = env_mach_pes.get_total_tasks(comp_classes)
+            self.total_tasks = env_mach_pes.get_total_tasks(comp_classes, asyncio)
             self.tasks_per_node = env_mach_pes.get_tasks_per_node(
                 self.total_tasks, self.thread_count
             )
@@ -1720,7 +1723,10 @@ class Case(object):
         if self._comp_interface == "nuopc":
             components.extend(["cdeps"])
 
-        readme_message = """Put source mods for the {component} library in this directory.
+        readme_message_start = (
+            "Put source mods for the {component} library in this directory."
+        )
+        readme_message_end = """
 
 WARNING: SourceMods are not kept under version control, and can easily
 become out of date if changes are made to the source code on which they
@@ -1754,7 +1760,18 @@ leveraging version control (git or svn).
                 # to fail).
                 readme_file = os.path.join(directory, "README")
                 with open(readme_file, "w") as fd:
-                    fd.write(readme_message.format(component=component))
+                    fd.write(readme_message_start.format(component=component))
+
+                    if component == "cdeps":
+                        readme_message_extra = """
+
+Note that this subdirectory should only contain files from CDEPS's
+dshr and streams source code directories.
+Files related to specific data models should go in SourceMods subdirectories
+for those data models (e.g., src.datm)."""
+                        fd.write(readme_message_extra)
+
+                    fd.write(readme_message_end)
 
         if config.copy_cism_source_mods:
             # Note: this is CESM specific, given that we are referencing cism explitly
@@ -2252,7 +2269,7 @@ directory, NOT in this subdirectory."""
         cimeroot = self.get_value("CIMEROOT")
 
         if cmd is None:
-            cmd = list(sys.argv)
+            cmd = self.fix_sys_argv_quotes(list(sys.argv))
 
         if init:
             ctime = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -2290,6 +2307,37 @@ directory, NOT in this subdirectory."""
                 fd.writelines(lines)
         except PermissionError:
             logger.warning("Could not write to 'replay.sh' script")
+
+    def fix_sys_argv_quotes(self, cmd):
+        """Fixes removed quotes from argument list.
+
+        Restores quotes to `--val` and `KEY=VALUE` from sys.argv.
+        """
+        # handle fixing quotes
+        # case 1: "--val", " -nlev 276 "
+        # case 2: "-val" , " -nlev 276 "
+        # case 3: CAM_CONFIG_OPTS=" -nlev 276 "
+        for i, item in enumerate(cmd):
+            if re.match("[-]{1,2}val", item) is not None:
+                if i + 1 >= len(cmd):
+                    continue
+
+                # only quote if value contains spaces
+                if " " in cmd[i + 1]:
+                    cmd[i + 1] = f'"{cmd[i + 1]}"'
+            else:
+                m = re.search("([^=]*)=(.*)", item)
+
+                if m is None:
+                    continue
+
+                g = m.groups()
+
+                # only quote if value contains spaces
+                if " " in g[1]:
+                    cmd[i] = f'{g[0]}="{g[1]}"'
+
+        return cmd
 
     def create(
         self,
