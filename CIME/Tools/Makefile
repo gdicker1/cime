@@ -231,7 +231,7 @@ ifeq ($(strip $(USE_PETSC)), TRUE)
 endif
 
 # Set MOAB info if it is being used
-ifeq ($(strip $(USE_MOAB)), TRUE)
+ifeq ($(COMP_INTERFACE), moab)
   ifdef MOAB_PATH
     CPPDEFS += -DHAVE_MOAB
     ifndef INC_MOAB
@@ -241,12 +241,8 @@ ifeq ($(strip $(USE_MOAB)), TRUE)
       LIB_MOAB:=$(MOAB_PATH)/lib
     endif
   else
-    $(error MOAB_PATH must be defined when USE_MOAB is TRUE)
+    $(error MOAB_PATH must be defined when using moab driver)
   endif
-
-  # get the "IMESH_LIBS" list as an env var
-  include $(LIB_MOAB)/iMesh-Defs.inc
-
 endif
 
 # Set HAVE_SLASHPROC on LINUX systems which are not bluegene or Darwin (OSx)
@@ -525,11 +521,11 @@ ifeq ($(strip $(COMP_ATM)),cam)
 endif
 
 ifeq ($(COMP_NAME),mpassi)
-  ifeq ($(strip $(COMPILER)),gnu)
-    # mpas seaice files that can't compile with optimization using gnu
-    ice_shortwave.o : ice_shortwave.F90
-        $(FC) -c $(FPPFLAGS) $(INCLDIR) $(INCS) $(FREEFLAGS) $(FFLAGS) $(FFLAGS_NOOPT) $<
-  endif
+ifeq ($(strip $(COMPILER)),gnu)
+# mpas seaice files that can't compile with optimization using gnu
+ice_shortwave.o : ice_shortwave.F90
+	$(FC) -c $(FPPFLAGS) $(INCLDIR) $(INCS) $(FREEFLAGS) $(FFLAGS) $(FFLAGS_NOOPT) $<
+endif
 endif
 
 ifeq ($(COMP_NAME),cam)
@@ -553,7 +549,7 @@ cospsimulator_intr.o: $(COSP_LIBDIR)/libcosp.a
 endif
 
 ifdef FV3CORE_LIBDIR
-$(FV3CORE_LIBDIR)/libfv3core.a: $(EXEROOT)/FMS/libfms.a
+$(FV3CORE_LIBDIR)/libfv3core.a: $(LIBROOT)/libfms.a
 	$(MAKE) -C $(FV3CORE_LIBDIR) complib COMPLIB='$(FV3CORE_LIBDIR)/libfv3core.a' F90='$(FC)' CC='$(CC)' FFLAGS='$(FFLAGS) $(FC_AUTO_R8)'  CFLAGS='$(CFLAGS)' INCLDIR='$(INCLDIR)' FC_TYPE='$(COMPILER)'
 
 dyn_grid.o: $(FV3CORE_LIBDIR)/libfv3core.a
@@ -585,12 +581,16 @@ endif
 
 
 # System libraries (netcdf, mpi, pnetcdf, esmf, trilinos, etc.)
-ifeq (,$(findstring lnetcdf,$(SLIBS)))
-  ifeq ($(NETCDF_SEPARATE), FALSE)
-    SLIBS += -L$(LIB_NETCDF) -lnetcdff -lnetcdf
-  else ifeq ($(NETCDF_SEPARATE), TRUE)
-    SLIBS += -L$(LIB_NETCDF_FORTRAN) -L$(LIB_NETCDF_C) -lnetcdff -lnetcdf
+ifeq ($(NETCDF_SEPARATE), FALSE)
+   ifeq (,$(findstring $(LIB_NETCDF),$(SLIBS)))
+      SLIBS += -L$(LIB_NETCDF) -lnetcdff -lnetcdf
   endif
+else ifeq ($(NETCDF_SEPARATE), TRUE)
+    ifeq (,$(findstring $(LIB_NETCDF_C), $(SLIBS)))
+      SLIBS += -L$(LIB_NETCDF_FORTRAN) -L$(LIB_NETCDF_C) -lnetcdff -lnetcdf
+    else ifeq (,$(findstring $(LIB_NETCDF_FOTRAN), $(SLIBS)))
+      SLIBS += -L$(LIB_NETCDF_FORTRAN) -L$(LIB_NETCDF_C) -lnetcdff -lnetcdf
+    endif
 endif
 
 ifdef LAPACK_LIBDIR
@@ -621,6 +621,9 @@ endif
 
 # Remove arch flag if it exists
 F90_LDFLAGS := $(filter-out -arch%,$(LDFLAGS))
+ifdef GPUFLAGS
+  F90_LDFLAGS += $(GPUFLAGS)
+endif
 
 # Machine stuff to appear last on the link step
 ifndef MLIBS
@@ -707,6 +710,9 @@ CMAKE_OPTS += -Wno-dev -D CMAKE_Fortran_FLAGS:STRING="$(FFLAGS) $(EXTRA_PIO_FPPD
 	      -D PIO_USE_MALLOC:BOOL=ON \
 	      -D USER_CMAKE_MODULE_PATH:LIST="$(CIMEROOT)/CIME/non_py/src/CMake;$(EXTERN_PATH)/parallelio/cmake"
 
+ifdef ADIOS2_DIR
+	CMAKE_OPTS += -D WITH_ADIOS2:BOOL=ON
+endif
 ifeq ($(DEBUG), TRUE)
   CMAKE_OPTS += -D PIO_ENABLE_LOGGING=ON
 endif
@@ -880,7 +886,7 @@ endif
 
 ifdef FV3CORE_LIBDIR
   ULIBDEP += $(FV3CORE_LIBDIR)/libfv3core.a
-  ULIBDEP += $(EXEROOT)/FMS/libfms.a
+  ULIBDEP += $(LIBROOT)/libfms.a
 endif
 
 ifdef MPAS_LIBDIR
@@ -916,7 +922,7 @@ GENF90 ?= $(CIMEROOT)/CIME/non_py/externals/genf90/genf90.pl
 
 ifeq ($(MPILIB),mpi-serial)
   MPISERIAL = $(INSTALL_SHAREDPATH)/lib/libmpi-serial.a
-  MLIBS += $(MPISERIAL)
+  MLIBS += -L$(INSTALL_SHAREDPATH)/lib -lmpi-serial
   CMAKE_OPTS += -DMPI_C_INCLUDE_PATH=$(INSTALL_SHAREDPATH)/include \
       -DMPI_Fortran_INCLUDE_PATH=$(INSTALL_SHAREDPATH)/include \
       -DMPI_C_LIBRARIES=$(INSTALL_SHAREDPATH)/lib/libmpi-serial.a \

@@ -8,6 +8,7 @@ import io, logging, gzip, sys, os, time, re, shutil, glob, string, random, impor
 import importlib.util
 import errno, signal, warnings, filecmp
 import stat as statlib
+from argparse import Action
 from contextlib import contextmanager
 
 from distutils import file_util
@@ -19,6 +20,14 @@ logger = logging.getLogger(__name__)
 # Fix to pass user defined `srcroot` to `CIME.XML.generic_xml.GenericXML`
 # where it's used to resolve $SRCROOT in XML config files.
 GLOBAL = {}
+
+
+def deprecate_action(message):
+    class ActionStoreDeprecated(Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            raise DeprecationWarning(f"{option_string} is deprecated{message}")
+
+    return ActionStoreDeprecated
 
 
 def import_from_file(name, file_path):
@@ -262,7 +271,7 @@ def _read_cime_config_file():
     cime_config_file = os.path.abspath(
         os.path.join(os.path.expanduser("~"), ".cime", "config")
     )
-    cime_config = configparser.SafeConfigParser()
+    cime_config = configparser.ConfigParser()
     if os.path.isfile(cime_config_file):
         cime_config.read(cime_config_file)
         for section in cime_config.sections():
@@ -633,7 +642,7 @@ def import_and_run_sub_or_cmd(
     try:
         mod = importlib.import_module(f"{compname}_cime_py")
         getattr(mod, subname)(*subargs)
-    except (ModuleNotFoundError, AttributeError) as _:
+    except (ModuleNotFoundError, AttributeError) as e:
         # * ModuleNotFoundError if importlib can not find module,
         # * AttributeError if importlib finds the module but
         #   {subname} is not defined in the module
@@ -641,7 +650,19 @@ def import_and_run_sub_or_cmd(
             os.path.isfile(cmd),
             f"Could not find {subname} file for component {compname}",
         )
-        run_sub_or_cmd(cmd, cmdargs, subname, subargs, logfile, case, from_dir, timeout)
+
+        # TODO shouldn't need to use logger.isEnabledFor for debug logging
+        if isinstance(e, ModuleNotFoundError) and logger.isEnabledFor(logging.DEBUG):
+            logger.info(
+                "WARNING: Could not import module '{}_cime_py'".format(compname)
+            )
+
+        try:
+            run_sub_or_cmd(
+                cmd, cmdargs, subname, subargs, logfile, case, from_dir, timeout
+            )
+        except Exception as e1:
+            raise e1 from None
     except Exception:
         if logfile:
             with open(logfile, "a") as log_fd:
@@ -993,6 +1014,12 @@ def parse_test_name(test_name):
     ['ERS', None, 'fe12_123', 'JGF', 'machine', 'compiler', None]
     >>> parse_test_name('ERS.fe12_123.JGF.machine_compiler.test-mods')
     ['ERS', None, 'fe12_123', 'JGF', 'machine', 'compiler', ['test/mods']]
+    >>> parse_test_name('ERS.fe12_123.JGF.*_compiler.test-mods')
+    ['ERS', None, 'fe12_123', 'JGF', None, 'compiler', ['test/mods']]
+    >>> parse_test_name('ERS.fe12_123.JGF.machine_*.test-mods')
+    ['ERS', None, 'fe12_123', 'JGF', 'machine', None, ['test/mods']]
+    >>> parse_test_name('ERS.fe12_123.JGF.*_*.test-mods')
+    ['ERS', None, 'fe12_123', 'JGF', None, None, ['test/mods']]
     >>> parse_test_name('ERS.fe12_123.JGF.machine_compiler.test-mods--other-dir-path--and-one-more')
     ['ERS', None, 'fe12_123', 'JGF', 'machine', 'compiler', ['test/mods', 'other/dir/path', 'and/one/more']]
     >>> parse_test_name('SMS.f19_g16.2000_DATM%QI.A_XLND_SICE_SOCN_XROF_XGLC_SWAV.mach-ine_compiler.test-mods') # doctest: +IGNORE_EXCEPTION_DETAIL
@@ -1026,6 +1053,10 @@ def parse_test_name(test_name):
             ),
         )
         rv[4:5] = rv[4].split("_")
+        if rv[4] == "*":
+            rv[4] = None
+        if rv[5] == "*":
+            rv[5] = None
         rv.pop()
 
     if rv[-1] is not None:
@@ -1118,7 +1149,6 @@ def get_full_test_name(
     ]
 
     result = partial_test
-
     for partial_val, arg_val, name in required_fields:
         if partial_val is None:
             # Add to result based on args
@@ -1128,9 +1158,14 @@ def get_full_test_name(
                     partial_test, name
                 ),
             )
-            result = "{}{}{}".format(
-                result, "_" if name == "compiler" else ".", arg_val
-            )
+            if name == "machine" and "*_" in result:
+                result = result.replace("*_", arg_val + "_")
+            elif name == "compiler" and "_*" in result:
+                result = result.replace("_*", "_" + arg_val)
+            else:
+                result = "{}{}{}".format(
+                    result, "_" if name == "compiler" else ".", arg_val
+                )
         elif arg_val is not None and partial_val != partial_compiler:
             expect(
                 arg_val == partial_val,
@@ -1276,13 +1311,15 @@ def start_buffering_output():
     sys.stdout = os.fdopen(sys.stdout.fileno(), "w")
 
 
-def match_any(item, re_list):
+def match_any(item, re_counts):
     """
-    Return true if item matches any regex in re_list
+    Return true if item matches any regex in re_counts' keys. Increments
+    count if a match was found.
     """
-    for regex_str in re_list:
+    for regex_str in re_counts:
         regex = re.compile(regex_str)
         if regex.match(item):
+            re_counts[regex_str] += 1
             return True
 
     return False
@@ -2301,16 +2338,16 @@ def get_lids(case):
     return _get_most_recent_lid_impl(glob.glob("{}/{}.log*".format(rundir, model)))
 
 
-def new_lid():
+def new_lid(case=None):
     lid = time.strftime("%y%m%d-%H%M%S")
-    jobid = batch_jobid()
+    jobid = batch_jobid(case=case)
     if jobid is not None:
         lid = jobid + "." + lid
     os.environ["LID"] = lid
     return lid
 
 
-def batch_jobid():
+def batch_jobid(case=None):
     jobid = os.environ.get("PBS_JOBID")
     if jobid is None:
         jobid = os.environ.get("SLURM_JOB_ID")
@@ -2318,6 +2355,8 @@ def batch_jobid():
         jobid = os.environ.get("LSB_JOBID")
     if jobid is None:
         jobid = os.environ.get("COBALT_JOBID")
+    if case:
+        jobid = case.get_job_id(jobid)
     return jobid
 
 

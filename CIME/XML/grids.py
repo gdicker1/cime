@@ -25,6 +25,10 @@ class Grids(GenericXML):
             infile = files.get_value("GRIDS_SPEC_FILE")
         logger.debug(" Grid specification file is {}".format(infile))
         schema = files.get_schema("GRIDS_SPEC_FILE")
+        expect(
+            os.path.isfile(infile) and os.access(infile, os.R_OK),
+            f" grid file not found {infile}",
+        )
         try:
             GenericXML.__init__(self, infile, schema)
         except:
@@ -313,7 +317,7 @@ class Grids(GenericXML):
                     domains[comp_name + "_NX"] = 1
                     domains[comp_name + "_NY"] = 1
 
-            if driver == "mct":
+            if driver == "mct" or driver == "moab":
                 # mct
                 file_nodes = self.get_children("file", root=domain_node)
                 domain_file = ""

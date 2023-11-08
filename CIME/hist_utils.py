@@ -52,7 +52,7 @@ def _iter_model_file_substrs(case):
         yield model
 
 
-def copy_histfiles(case, suffix):
+def copy_histfiles(case, suffix, match_suffix=None):
     """Copy the most recent batch of hist files in a case, adding the given suffix.
 
     This can allow you to temporarily "save" these files so they won't be blown
@@ -60,6 +60,8 @@ def copy_histfiles(case, suffix):
 
     case - The case containing the files you want to save
     suffix - The string suffix you want to add to saved files, this can be used to find them later.
+
+    returns (comments, num_copied)
     """
     rundir = case.get_value("RUNDIR")
     ref_case = case.get_value("RUN_REFCASE")
@@ -69,9 +71,15 @@ def copy_histfiles(case, suffix):
     comments = "Copying hist files to suffix '{}'\n".format(suffix)
     num_copied = 0
     for model in _iter_model_file_substrs(case):
+        if case.get_value("TEST") and archive.exclude_testing(model):
+            logger.info(
+                "Case is a test and component %r is excluded from comparison", model
+            )
+
+            continue
         comments += "  Copying hist files for model '{}'\n".format(model)
         test_hists = archive.get_latest_hist_files(
-            casename, model, rundir, ref_case=ref_case
+            casename, model, rundir, suffix=match_suffix, ref_case=ref_case
         )
         num_copied += len(test_hists)
         for test_hist in test_hists:
@@ -104,7 +112,7 @@ def copy_histfiles(case, suffix):
         "copy_histfiles failed: no hist files found in rundir '{}'".format(rundir),
     )
 
-    return comments
+    return comments, num_copied
 
 
 def rename_all_hist_files(case, suffix):
@@ -265,6 +273,11 @@ def _compare_hists(
     outfile_suffix="",
     ignore_fieldlist_diffs=False,
 ):
+    """
+    Compares two sets of history files
+
+    Returns (success (True if all matched), comments, num_compared)
+    """
     if from_dir1 == from_dir2:
         expect(suffix1 != suffix2, "Comparing files to themselves?")
 
@@ -280,6 +293,12 @@ def _compare_hists(
     archive = case.get_env("archive")
     ref_case = case.get_value("RUN_REFCASE")
     for model in _iter_model_file_substrs(case):
+        if case.get_value("TEST") and archive.exclude_testing(model):
+            logger.info(
+                "Case is a test and component %r is excluded from comparison", model
+            )
+
+            continue
         if model == "cpl" and suffix2 == "multiinst":
             multiinst_driver_compare = True
         comments += "  comparing model '{}'\n".format(model)
@@ -319,20 +338,30 @@ def _compare_hists(
             if not ".nc" in hist1:
                 logger.info("Ignoring non-netcdf file {}".format(hist1))
                 continue
-            success, cprnc_log_file, cprnc_comment = cprnc(
-                model,
-                os.path.join(from_dir1, hist1),
-                os.path.join(from_dir2, hist2),
-                case,
-                from_dir1,
-                multiinst_driver_compare=multiinst_driver_compare,
-                outfile_suffix=outfile_suffix,
-                ignore_fieldlist_diffs=ignore_fieldlist_diffs,
-            )
+            try:
+                success, cprnc_log_file, cprnc_comment = cprnc(
+                    model,
+                    os.path.join(from_dir1, hist1),
+                    os.path.join(from_dir2, hist2),
+                    case,
+                    from_dir1,
+                    multiinst_driver_compare=multiinst_driver_compare,
+                    outfile_suffix=outfile_suffix,
+                    ignore_fieldlist_diffs=ignore_fieldlist_diffs,
+                )
+            except:
+                cprnc_comment = "CPRNC executable not found"
+                cprnc_log_file = None
+                success = False
+
             if success:
                 comments += "    {} matched {}\n".format(hist1, hist2)
             else:
-                if cprnc_comment == CPRNC_FIELDLISTS_DIFFER:
+                if not cprnc_log_file:
+                    comments += cprnc_comment
+                    all_success = False
+                    return all_success, comments, 0
+                elif cprnc_comment == CPRNC_FIELDLISTS_DIFFER:
                     comments += "    {} {} {}\n".format(hist1, FIELDLISTS_DIFFER, hist2)
                 else:
                     comments += "    {} {} {}\n".format(hist1, DIFF_COMMENT, hist2)
@@ -352,6 +381,7 @@ def _compare_hists(
                         )
 
                 all_success = False
+
     # Some tests don't save history files.
     if num_compared == 0 and testcase not in NO_HIST_TESTS:
         all_success = False
@@ -359,7 +389,7 @@ def _compare_hists(
 
     comments += "PASS" if all_success else "FAIL"
 
-    return all_success, comments
+    return all_success, comments, num_compared
 
 
 def compare_test(case, suffix1, suffix2, ignore_fieldlist_diffs=False):
@@ -374,7 +404,7 @@ def compare_test(case, suffix1, suffix2, ignore_fieldlist_diffs=False):
         diagnostic fields that are missing from the other case), treat the two cases as
         identical.
 
-    returns (SUCCESS, comments)
+    returns (SUCCESS, comments, num_compared)
     """
     rundir = case.get_value("RUNDIR")
 
@@ -420,6 +450,11 @@ def cprnc(
     """
     if not cprnc_exe:
         cprnc_exe = case.get_value("CCSM_CPRNC")
+    expect(
+        os.path.isfile(cprnc_exe) and os.access(cprnc_exe, os.X_OK),
+        f"cprnc {cprnc_exe} does not exist or is not executable",
+    )
+
     basename = os.path.basename(file1)
     multiinst_regex = re.compile(r".*%s[^_]*(_[0-9]{4})[.]h.?[.][^.]+?[.]nc" % model)
     mstr = ""
@@ -517,7 +552,7 @@ def compare_baseline(case, baseline_dir=None, outfile_suffix=""):
                 TEST_NO_BASELINES_COMMENT, bdir
             )
 
-    success, comments = _compare_hists(
+    success, comments, _ = _compare_hists(
         case, rundir, basecmp_dir, outfile_suffix=outfile_suffix
     )
     if Config.instance().create_bless_log:
