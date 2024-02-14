@@ -1625,20 +1625,25 @@ def find_files(rootdir, pattern):
 
 
 def setup_standard_logging_options(parser):
+    group = parser.add_argument_group("Logging options")
+
     helpfile = os.path.join(os.getcwd(), os.path.basename("{}.log".format(sys.argv[0])))
-    parser.add_argument(
+
+    group.add_argument(
         "-d",
         "--debug",
         action="store_true",
         help="Print debug information (very verbose) to file {}".format(helpfile),
     )
-    parser.add_argument(
+
+    group.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="Add additional context (time and file) to log messages",
     )
-    parser.add_argument(
+
+    group.add_argument(
         "-s",
         "--silent",
         action="store_true",
@@ -2704,3 +2709,28 @@ def clear_folder(_dir):
                     os.rmdir(file_path)
             except Exception as e:
                 print(e)
+
+
+def add_flag_to_cmd(flag, val):
+    """
+    Given a flag and value for a shell command, return a string
+
+    >>> add_flag_to_cmd("-f", "hi")
+    '-f hi'
+    >>> add_flag_to_cmd("--foo", 42)
+    '--foo 42'
+    >>> add_flag_to_cmd("--foo=", 42)
+    '--foo=42'
+    >>> add_flag_to_cmd("--foo:", 42)
+    '--foo:42'
+    >>> add_flag_to_cmd("--foo:", " hi ")
+    '--foo:hi'
+    """
+    no_space_chars = "=:"
+    no_space = False
+    for item in no_space_chars:
+        if flag.endswith(item):
+            no_space = True
+
+    separator = "" if no_space else " "
+    return "{}{}{}".format(flag, separator, str(val).strip())

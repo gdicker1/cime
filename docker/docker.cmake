@@ -1,11 +1,15 @@
 string(APPEND CXXFLAGS " -std=c++14")
 string(APPEND CXX_LIBS " -lstdc++")
-string(APPEND SLIBS " -L/opt/conda/lib -lnetcdf -lnetcdff")
+
+# DEBUGGING variables
+# get_cmake_property(_variableNames VARIABLES)
+# foreach (_variableName ${_variableNames})
+#     message("${_variableName}=${${_variableName}}")
+# endforeach()
+# message( FATAL_ERROR "EXIT")
+
+# required for grid generation tests that use make
+if (CMAKE_SOURCE_DIR MATCHES "^.*TestGridGeneration.*$")
 string(APPEND FFLAGS " -I/opt/conda/include")
-set(MPI_PATH "/opt/conda")
-set(NETCDF_C_PATH "/opt/conda")
-set(NETCDF_FORTRAN_PATH "/opt/conda")
-set(PNETCDF_PATH "/opt/conda")
-if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
-  string(APPEND FFLAGS " -fallow-argument-mismatch  -fallow-invalid-boz ")
+string(APPEND SLIBS " -L/opt/conda/lib -lnetcdf -lnetcdff")
 endif()

@@ -4,13 +4,13 @@ FROM condaforge/mambaforge:${MAMBAFORGE_VERSION} AS base
 ARG PNETCDF_VERSION=1.12.3
 ENV PNETCDF_VERSION=${PNETCDF_VERSION}
 
-ARG LIBNETCDF_VERSION=4.8.1
+ARG LIBNETCDF_VERSION=4.9.1
 ENV LIBNETCDF_VERSION=${LIBNETCDF_VERSION}
 
-ARG NETCDF_FORTRAN_VERSION=4.6.0
+ARG NETCDF_FORTRAN_VERSION=*
 ENV NETCDF_FORTRAN_VERSION=${NETCDF_FORTRAN_VERSION}
 
-ARG ESMF_VERSION=8.4.0
+ARG ESMF_VERSION=*
 ENV ESMF_VERSION=${ESMF_VERSION}
 
 ARG GCC_VERSION=10.*
@@ -47,6 +47,8 @@ RUN mamba install --yes -c conda-forge \
 # gcc, gxx, gfortran provide symlinks for x86_64-conda-linux-gnu-*
 # ar and ranlib are not symlinked
 RUN mamba install --yes -c conda-forge \
+            lapack \
+            blas \
             libnetcdf=${LIBNETCDF_VERSION}=*openmpi* \
             netcdf-fortran=${NETCDF_FORTRAN_VERSION}=*openmpi* \
             esmf=${ESMF_VERSION}=*openmpi* \
