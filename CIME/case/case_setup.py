@@ -28,6 +28,7 @@ import errno, shutil
 
 logger = logging.getLogger(__name__)
 
+
 ###############################################################################
 def _build_usernl_files(case, model, comp):
     ###############################################################################
@@ -344,7 +345,7 @@ def _case_setup_impl(
 
             case.initialize_derived_attributes()
 
-            case.set_value("SMP_PRESENT", case.get_build_threaded())
+            case.set_value("BUILD_THREADED", case.get_build_threaded())
 
         else:
             case.check_pelayouts_require_rebuild(models)
@@ -360,7 +361,7 @@ def _case_setup_impl(
             cost_per_node = case.get_value("COSTPES_PER_NODE")
             case.set_value("COST_PES", case.num_nodes * cost_per_node)
             threaded = case.get_build_threaded()
-            case.set_value("SMP_PRESENT", threaded)
+            case.set_value("BUILD_THREADED", threaded)
             if threaded and case.total_tasks * case.thread_count > cost_per_node:
                 smt_factor = max(
                     1.0, int(case.get_value("MAX_TASKS_PER_NODE") / cost_per_node)
@@ -421,6 +422,15 @@ def _case_setup_impl(
                 run_cmd_no_fail(
                     "{}/cime_config/cism.template {}".format(glcroot, caseroot)
                 )
+            if comp == "cam":
+                camroot = case.get_value("COMP_ROOT_DIR_ATM")
+                if os.path.exists(os.path.join(camroot, "cam.case_setup.py")):
+                    logger.debug("Running cam.case_setup.py")
+                    run_cmd_no_fail(
+                        "python {cam}/cime_config/cam.case_setup.py {cam} {case}".format(
+                            cam=camroot, case=caseroot
+                        )
+                    )
 
         _build_usernl_files(case, "drv", "cpl")
 

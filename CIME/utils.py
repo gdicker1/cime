@@ -11,6 +11,7 @@ import stat as statlib
 from argparse import Action
 from contextlib import contextmanager
 
+# pylint: disable=deprecated-module
 from distutils import file_util
 
 # Return this error code if the scripts worked but tests failed
@@ -201,7 +202,7 @@ def check_name(fullname, additional_chars=None, fullpath=False):
     False
     """
 
-    chars = "+*?<>/{}[\]~`@:"  # pylint: disable=anomalous-backslash-in-string
+    chars = r"+*?<>/{}[\]~`@:"
     if additional_chars is not None:
         chars += additional_chars
     if fullname.endswith("/"):
@@ -1413,6 +1414,7 @@ def safe_copy(src_path, tgt_path, preserve_meta=True):
                 tgt_path,
                 preserve_mode=preserve_meta,
                 preserve_times=preserve_meta,
+                verbose=0,
             )
         else:
             # I am not the owner, just copy file contents
@@ -1426,6 +1428,7 @@ def safe_copy(src_path, tgt_path, preserve_meta=True):
             tgt_path,
             preserve_mode=preserve_meta,
             preserve_times=preserve_meta,
+            verbose=0,
         )
 
     # If src file was executable, then the tgt file should be too
@@ -2734,3 +2737,21 @@ def add_flag_to_cmd(flag, val):
 
     separator = "" if no_space else " "
     return "{}{}{}".format(flag, separator, str(val).strip())
+
+
+def is_comp_standalone(case):
+    """
+    Test if the case is a single component standalone
+    such as FKESSLER
+    """
+    stubcnt = 0
+    classes = case.get_values("COMP_CLASSES")
+    for comp in classes:
+        if case.get_value("COMP_{}".format(comp)) == "s{}".format(comp.lower()):
+            stubcnt = stubcnt + 1
+        else:
+            model = comp.lower()
+    numclasses = len(classes)
+    if stubcnt >= numclasses - 2:
+        return True, model
+    return False, get_model()

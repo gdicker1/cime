@@ -3,6 +3,7 @@
 import os
 import tempfile
 import gzip
+import re
 from re import A
 import unittest
 from unittest import mock
@@ -69,12 +70,12 @@ def create_mock_case(tempdir, idx=None, cpllog_data=None):
 class TestUnitSystemTests(unittest.TestCase):
     @mock.patch("CIME.SystemTests.system_tests_common.load_coupler_customization")
     @mock.patch("CIME.SystemTests.system_tests_common.append_testlog")
-    @mock.patch("CIME.SystemTests.system_tests_common._perf_get_memory")
+    @mock.patch("CIME.SystemTests.system_tests_common.perf_get_memory_list")
     @mock.patch("CIME.SystemTests.system_tests_common.get_latest_cpl_logs")
     def test_check_for_memleak_runtime_error(
         self,
         get_latest_cpl_logs,
-        _perf_get_memory,
+        perf_get_memory_list,
         append_testlog,
         load_coupler_customization,
     ):
@@ -82,7 +83,7 @@ class TestUnitSystemTests(unittest.TestCase):
             AttributeError
         )
 
-        _perf_get_memory.side_effect = RuntimeError
+        perf_get_memory_list.side_effect = RuntimeError
 
         with tempfile.TemporaryDirectory() as tempdir:
             caseroot = Path(tempdir) / "caseroot"
@@ -119,12 +120,12 @@ class TestUnitSystemTests(unittest.TestCase):
 
     @mock.patch("CIME.SystemTests.system_tests_common.load_coupler_customization")
     @mock.patch("CIME.SystemTests.system_tests_common.append_testlog")
-    @mock.patch("CIME.SystemTests.system_tests_common._perf_get_memory")
+    @mock.patch("CIME.SystemTests.system_tests_common.perf_get_memory_list")
     @mock.patch("CIME.SystemTests.system_tests_common.get_latest_cpl_logs")
     def test_check_for_memleak_not_enough_samples(
         self,
         get_latest_cpl_logs,
-        _perf_get_memory,
+        perf_get_memory_list,
         append_testlog,
         load_coupler_customization,
     ):
@@ -132,7 +133,7 @@ class TestUnitSystemTests(unittest.TestCase):
             AttributeError
         )
 
-        _perf_get_memory.return_value = [
+        perf_get_memory_list.return_value = [
             (1, 1000.0),
             (2, 0),
         ]
@@ -172,12 +173,12 @@ class TestUnitSystemTests(unittest.TestCase):
 
     @mock.patch("CIME.SystemTests.system_tests_common.load_coupler_customization")
     @mock.patch("CIME.SystemTests.system_tests_common.append_testlog")
-    @mock.patch("CIME.SystemTests.system_tests_common._perf_get_memory")
+    @mock.patch("CIME.SystemTests.system_tests_common.perf_get_memory_list")
     @mock.patch("CIME.SystemTests.system_tests_common.get_latest_cpl_logs")
     def test_check_for_memleak_found(
         self,
         get_latest_cpl_logs,
-        _perf_get_memory,
+        perf_get_memory_list,
         append_testlog,
         load_coupler_customization,
     ):
@@ -185,7 +186,7 @@ class TestUnitSystemTests(unittest.TestCase):
             AttributeError
         )
 
-        _perf_get_memory.return_value = [
+        perf_get_memory_list.return_value = [
             (1, 1000.0),
             (2, 2000.0),
             (3, 3000.0),
@@ -229,12 +230,12 @@ class TestUnitSystemTests(unittest.TestCase):
 
     @mock.patch("CIME.SystemTests.system_tests_common.load_coupler_customization")
     @mock.patch("CIME.SystemTests.system_tests_common.append_testlog")
-    @mock.patch("CIME.SystemTests.system_tests_common._perf_get_memory")
+    @mock.patch("CIME.SystemTests.system_tests_common.perf_get_memory_list")
     @mock.patch("CIME.SystemTests.system_tests_common.get_latest_cpl_logs")
     def test_check_for_memleak(
         self,
         get_latest_cpl_logs,
-        _perf_get_memory,
+        perf_get_memory_list,
         append_testlog,
         load_coupler_customization,
     ):
@@ -242,7 +243,7 @@ class TestUnitSystemTests(unittest.TestCase):
             AttributeError
         )
 
-        _perf_get_memory.return_value = [
+        perf_get_memory_list.return_value = [
             (1, 3040.0),
             (2, 3002.0),
             (3, 3030.0),
@@ -509,13 +510,13 @@ class TestUnitSystemTests(unittest.TestCase):
                 lines = fd.readlines()
 
             assert len(lines) == 1
-            assert lines[0] == "719.635"
+            assert re.match("sha:.* date:.* (\d+\.\d+)", lines[0])
 
             with open(baseline_dir / "cpl-mem.log") as fd:
                 lines = fd.readlines()
 
             assert len(lines) == 1
-            assert lines[0] == "1673.89"
+            assert re.match("sha:.* date:.* (\d+\.\d+)", lines[0])
 
     def test_kwargs(self):
         case = mock.MagicMock()
