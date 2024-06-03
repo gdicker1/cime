@@ -13,6 +13,7 @@ from CIME.utils import (
     expect,
     get_current_commit,
     SharedArea,
+    is_comp_standalone,
 )
 from CIME.test_status import *
 from CIME.hist_utils import (
@@ -28,7 +29,7 @@ from CIME.provenance import save_test_time, get_test_success
 from CIME.locked_files import LOCKED_DIR, lock_file, is_locked
 from CIME.baselines.performance import (
     get_latest_cpl_logs,
-    _perf_get_memory,
+    perf_get_memory_list,
     perf_compare_memory_baseline,
     perf_compare_throughput_baseline,
     perf_write_baseline,
@@ -110,7 +111,7 @@ class SystemTestsCommon(object):
         self._init_locked_files(caseroot, expected)
         self._skip_pnl = False
         self._cpllog = (
-            "drv" if self._case.get_value("COMP_INTERFACE") == "nuopc" else "cpl"
+            "med" if self._case.get_value("COMP_INTERFACE") == "nuopc" else "cpl"
         )
         self._ninja = False
         self._dry_run = False
@@ -289,10 +290,12 @@ class SystemTestsCommon(object):
             if self._case.get_value("COMPARE_BASELINE"):
                 if do_baseline_ops:
                     self._phase_modifying_call(BASELINE_PHASE, self._compare_baseline)
-                    self._phase_modifying_call(MEMCOMP_PHASE, self._compare_memory)
-                    self._phase_modifying_call(
-                        THROUGHPUT_PHASE, self._compare_throughput
-                    )
+                    comp_standalone, _ = is_comp_standalone(self._case)
+                    if not comp_standalone:
+                        self._phase_modifying_call(MEMCOMP_PHASE, self._compare_memory)
+                        self._phase_modifying_call(
+                            THROUGHPUT_PHASE, self._compare_throughput
+                        )
                 else:
                     with self._test_status:
                         self._test_status.set_status(BASELINE_PHASE, TEST_PEND_STATUS)
@@ -456,7 +459,7 @@ class SystemTestsCommon(object):
             raise CIMEError(
                 "Could not find all inputdata on any server, try "
                 "manually running `./check_input_data --download "
-                f"--versbose` from {caseroot!r}."
+                f"--verbose` from {caseroot!r}."
             ) from None
         if submit_resubmits is None:
             do_resub = self._case.get_value("BATCH_SYSTEM") != "none"
@@ -806,7 +809,7 @@ def perf_check_for_memory_leak(case, tolerance):
 
     for cpllog in latestcpllogs:
         try:
-            memlist = _perf_get_memory(case, cpllog)
+            memlist = perf_get_memory_list(case, cpllog)
         except RuntimeError:
             return False, "insufficient data for memleak test"
 
