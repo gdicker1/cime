@@ -318,7 +318,10 @@ class TestCreateNewcase(base.BaseTestCase):
             self.assertTrue(output == str(STOP_N), msg="%s != %s" % (output, STOP_N))
             cmd = xmlquery + " --non-local BUILD_COMPLETE --value"
             output = utils.run_cmd_no_fail(cmd, from_dir=casedir)
-            self.assertTrue(output == "TRUE", msg="%s != %s" % (output, BUILD_COMPLETE))
+            output = output == "TRUE"
+            self.assertTrue(
+                output == BUILD_COMPLETE, msg="%s != %s" % (output, BUILD_COMPLETE)
+            )
             # we expect DOCN_MODE to be undefined in this X compset
             # this test assures that we do not try to resolve this as a compvar
             cmd = xmlquery + " --non-local DOCN_MODE --value"
@@ -365,23 +368,13 @@ class TestCreateNewcase(base.BaseTestCase):
         cls._testdirs.append(testdir)
 
         if self._config.test_mode == "cesm":
-            if utils.get_cime_default_driver() == "nuopc":
-                pesfile = os.path.join(
-                    utils.get_src_root(),
-                    "components",
-                    "cmeps",
-                    "cime_config",
-                    "config_pes.xml",
-                )
-            else:
-                pesfile = os.path.join(
-                    utils.get_src_root(),
-                    "components",
-                    "cpl7",
-                    "driver",
-                    "cime_config",
-                    "config_pes.xml",
-                )
+            pesfile = os.path.join(
+                utils.get_src_root(),
+                "components",
+                "cmeps",
+                "cime_config",
+                "config_pes.xml",
+            )
         else:
             pesfile = os.path.join(
                 utils.get_src_root(), "driver-mct", "cime_config", "config_pes.xml"
