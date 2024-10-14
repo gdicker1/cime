@@ -2,6 +2,7 @@
 Common functions used by cime python scripts
 Warning: you cannot use CIME Classes in this module as it causes circular dependencies
 """
+
 import shlex
 import configparser
 import io, logging, gzip, sys, os, time, re, shutil, glob, string, random, importlib, fnmatch
@@ -21,6 +22,8 @@ logger = logging.getLogger(__name__)
 # Fix to pass user defined `srcroot` to `CIME.XML.generic_xml.GenericXML`
 # where it's used to resolve $SRCROOT in XML config files.
 GLOBAL = {}
+CASE_SUCCESS = "success"
+CASE_FAILURE = "error"
 
 
 def deprecate_action(message):
@@ -817,12 +820,10 @@ def run_cmd(
     # or build a relative path and append `sys.path` to import
     # `standard_script_setup`. Providing `PYTHONPATH` fixes protential
     # broken paths in external python.
-    env.update(
-        {
-            "CIMEROOT": f"{get_cime_root()}",
-            "PYTHONPATH": f"{get_cime_root()}:{get_tools_path()}",
-        }
-    )
+    env_pythonpath = os.environ.get("PYTHONPATH", "").split(":")
+    cime_pythonpath = [f"{get_cime_root()}", f"{get_tools_path()}"] + env_pythonpath
+    env["PYTHONPATH"] = ":".join(filter(None, cime_pythonpath))
+    env["CIMEROOT"] = f"{get_cime_root()}"
 
     if timeout:
         with Timeout(timeout):
@@ -1666,7 +1667,7 @@ class _LessThanFilter(logging.Filter):
         return 1 if record.levelno < self.max_level else 0
 
 
-def configure_logging(verbose, debug, silent):
+def configure_logging(verbose, debug, silent, **_):
     root_logger = logging.getLogger()
 
     verbose_formatter = logging.Formatter(
@@ -1747,7 +1748,6 @@ def convert_to_type(value, type_str, vid=""):
     vid is only for generating better error messages.
     """
     if value is not None:
-
         if type_str == "char":
             pass
 
@@ -1793,7 +1793,6 @@ def convert_to_unknown_type(value):
     Convert value to it's real type by probing conversions.
     """
     if value is not None:
-
         # Attempt to convert to logical
         if value.upper() in ["TRUE", "FALSE"]:
             return value.upper() == "TRUE"
@@ -2053,39 +2052,6 @@ def format_time(time_format, input_format, input_time):
             output_time += "0" * min_len_spec[spec]
         output_time += field[1:]
     return output_time
-
-
-def append_status(msg, sfile, caseroot="."):
-    """
-    Append msg to sfile in caseroot
-    """
-    ctime = time.strftime("%Y-%m-%d %H:%M:%S: ")
-
-    # Reduce empty lines in CaseStatus. It's a very concise file
-    # and does not need extra newlines for readability
-    line_ending = "\n"
-
-    with open(os.path.join(caseroot, sfile), "a") as fd:
-        fd.write(ctime + msg + line_ending)
-        fd.write(" ---------------------------------------------------" + line_ending)
-
-
-def append_testlog(msg, caseroot="."):
-    """
-    Add to TestStatus.log file
-    """
-    append_status(msg, "TestStatus.log", caseroot)
-
-
-def append_case_status(phase, status, msg=None, caseroot="."):
-    """
-    Update CaseStatus file
-    """
-    append_status(
-        "{} {}{}".format(phase, status, " {}".format(msg if msg else "")),
-        "CaseStatus",
-        caseroot,
-    )
 
 
 def does_file_have_string(filepath, text):
@@ -2456,60 +2422,6 @@ def verbatim_success_msg(return_val):
     return return_val
 
 
-CASE_SUCCESS = "success"
-CASE_FAILURE = "error"
-
-
-def run_and_log_case_status(
-    func,
-    phase,
-    caseroot=".",
-    custom_starting_msg_functor=None,
-    custom_success_msg_functor=None,
-    is_batch=False,
-):
-    starting_msg = None
-
-    if custom_starting_msg_functor is not None:
-        starting_msg = custom_starting_msg_functor()
-
-    # Delay appending "starting" on "case.subsmit" phase when batch system is
-    # present since we don't have the jobid yet
-    if phase != "case.submit" or not is_batch:
-        append_case_status(phase, "starting", msg=starting_msg, caseroot=caseroot)
-    rv = None
-    try:
-        rv = func()
-    except BaseException:
-        custom_success_msg = (
-            custom_success_msg_functor(rv)
-            if custom_success_msg_functor and rv is not None
-            else None
-        )
-        if phase == "case.submit" and is_batch:
-            append_case_status(
-                phase, "starting", msg=custom_success_msg, caseroot=caseroot
-            )
-        e = sys.exc_info()[1]
-        append_case_status(
-            phase, CASE_FAILURE, msg=("\n{}".format(e)), caseroot=caseroot
-        )
-        raise
-    else:
-        custom_success_msg = (
-            custom_success_msg_functor(rv) if custom_success_msg_functor else None
-        )
-        if phase == "case.submit" and is_batch:
-            append_case_status(
-                phase, "starting", msg=custom_success_msg, caseroot=caseroot
-            )
-        append_case_status(
-            phase, CASE_SUCCESS, msg=custom_success_msg, caseroot=caseroot
-        )
-
-    return rv
-
-
 def _check_for_invalid_args(args):
     # Prevent circular import
     from CIME.config import Config
@@ -2616,8 +2528,11 @@ def run_bld_cmd_ensure_logging(cmd, arg_logger, from_dir=None, timeout=None):
     expect(stat == 0, filter_unicode(errput))
 
 
-def get_batch_script_for_job(job):
-    return job if "st_archive" in job else "." + job
+def get_batch_script_for_job(job, hidden=None):
+    # this if statement is for backward compatibility
+    if hidden is None:
+        hidden = job != "case.st_archive"
+    return "." + job if hidden else job
 
 
 def string_in_list(_string, _list):
