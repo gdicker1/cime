@@ -113,6 +113,7 @@ def _test_helper2(
     check_throughput=False,
     check_memory=False,
     ignore_namelists=False,
+    ignore_diffs=False,
     no_run=False,
     no_perm=False,
 ):
@@ -127,6 +128,7 @@ def _test_helper2(
             check_throughput=check_throughput,
             check_memory=check_memory,
             ignore_namelists=ignore_namelists,
+            ignore_diffs=ignore_diffs,
             no_run=no_run,
         )
         if rv is not None and the_status != rv:
@@ -410,6 +412,7 @@ class TestStatus(object):
         check_throughput=False,
         check_memory=False,
         ignore_namelists=False,
+        ignore_diffs=False,
         ignore_memleak=False,
         no_run=False,
     ):
@@ -452,6 +455,7 @@ class TestStatus(object):
                     (not check_throughput and phase == THROUGHPUT_PHASE)
                     or (not check_memory and phase == MEMCOMP_PHASE)
                     or (ignore_namelists and phase == NAMELIST_PHASE)
+                    or (ignore_diffs and phase == BASELINE_PHASE)
                     or (ignore_memleak and phase == MEMLEAK_PHASE)
                 ):
                     continue
@@ -463,7 +467,14 @@ class TestStatus(object):
                 elif phase in [BASELINE_PHASE, THROUGHPUT_PHASE, MEMCOMP_PHASE]:
                     if rv in [NAMELIST_FAIL_STATUS, TEST_PASS_STATUS]:
                         phase_responsible_for_status = phase
-                        rv = TEST_DIFF_STATUS
+                        # need to further inspect message to determine
+                        # phase status. BFAILs need to be a DIFF
+                        if "DIFF" in data[1] or TEST_NO_BASELINES_COMMENT in data[1]:
+                            rv = TEST_DIFF_STATUS
+                        elif "ERROR" in data[1]:
+                            rv = TEST_FAIL_STATUS
+                        else:
+                            rv = TEST_DIFF_STATUS
                     else:
                         pass  # a DIFF does not trump a FAIL
 
@@ -493,6 +504,7 @@ class TestStatus(object):
         check_throughput=False,
         check_memory=False,
         ignore_namelists=False,
+        ignore_diffs=False,
         ignore_memleak=False,
         no_run=False,
     ):
@@ -527,6 +539,10 @@ class TestStatus(object):
         ('FAIL', 'COMPARE_2')
         >>> _test_helper2('FAIL ERS.foo.A BASELINE\nFAIL ERS.foo.A NLCOMP\nPASS ERS.foo.A COMPARE_2\nPASS ERS.foo.A RUN')
         ('DIFF', 'BASELINE')
+        >>> _test_helper2('FAIL ERS.foo.A BASELINE\nPASS ERS.foo.A NLCOMP\nPASS ERS.foo.A COMPARE_2\nPASS ERS.foo.A RUN', ignore_diffs=True)
+        ('PASS', 'RUN')
+        >>> _test_helper2('FAIL ERS.foo.A BASELINE\nFAIL ERS.foo.A NLCOMP\nPASS ERS.foo.A COMPARE_2\nPASS ERS.foo.A RUN', ignore_diffs=True)
+        ('NLFAIL', 'RUN')
         >>> _test_helper2('FAIL ERS.foo.A BASELINE\nFAIL ERS.foo.A NLCOMP\nFAIL ERS.foo.A COMPARE_2\nPASS ERS.foo.A RUN')
         ('FAIL', 'COMPARE_2')
         >>> _test_helper2('PEND ERS.foo.A COMPARE_2\nFAIL ERS.foo.A RUN')
@@ -585,6 +601,7 @@ class TestStatus(object):
             check_throughput=check_throughput,
             check_memory=check_memory,
             ignore_namelists=ignore_namelists,
+            ignore_diffs=ignore_diffs,
             ignore_memleak=ignore_memleak,
             no_run=no_run,
         )
@@ -602,6 +619,7 @@ class TestStatus(object):
                 check_throughput=check_throughput,
                 check_memory=check_memory,
                 ignore_namelists=ignore_namelists,
+                ignore_diffs=ignore_diffs,
                 ignore_memleak=ignore_memleak,
                 no_run=no_run,
             )

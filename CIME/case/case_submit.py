@@ -8,8 +8,14 @@ submit, check_case and check_da_settings are members of class Case in file case.
 """
 import configparser
 from CIME.XML.standard_module_setup import *
-from CIME.utils import expect, run_and_log_case_status, CIMEError, get_time_in_seconds
-from CIME.locked_files import unlock_file, lock_file
+from CIME.utils import expect, CIMEError, get_time_in_seconds
+from CIME.status import run_and_log_case_status
+from CIME.locked_files import (
+    unlock_file,
+    lock_file,
+    check_lockedfile,
+    check_lockedfiles,
+)
 from CIME.test_status import *
 
 logger = logging.getLogger(__name__)
@@ -95,15 +101,14 @@ def _submit(
         batch_system = env_batch.get_batch_system_type()
 
     if batch_system != case.get_value("BATCH_SYSTEM"):
-        unlock_file(os.path.basename(env_batch.filename), caseroot=caseroot)
+        unlock_file(os.path.basename(env_batch.filename), caseroot)
+
         case.set_value("BATCH_SYSTEM", batch_system)
 
     env_batch_has_changed = False
     if not external_workflow:
         try:
-            case.check_lockedfile(
-                os.path.basename(env_batch.filename), caseroot=caseroot
-            )
+            check_lockedfile(case, os.path.basename(env_batch.filename))
         except:
             env_batch_has_changed = True
 
@@ -116,8 +121,10 @@ manual edits to these file will be lost!
 """
         )
         env_batch.make_all_batch_files(case)
+
     case.flush()
-    lock_file(os.path.basename(env_batch.filename), caseroot=caseroot)
+
+    lock_file(os.path.basename(env_batch.filename), caseroot)
 
     if resubmit:
         # This is a resubmission, do not reinitialize test values
@@ -143,7 +150,7 @@ manual edits to these file will be lost!
 
         env_batch_has_changed = False
         try:
-            case.check_lockedfile(os.path.basename(env_batch.filename))
+            check_lockedfile(case, os.path.basename(env_batch.filename))
         except CIMEError:
             env_batch_has_changed = True
 
@@ -157,10 +164,12 @@ manual edits to these file will be lost!
             )
             env_batch.make_all_batch_files(case)
 
-        unlock_file(os.path.basename(env_batch.filename), caseroot=caseroot)
-        lock_file(os.path.basename(env_batch.filename), caseroot=caseroot)
+        unlock_file(os.path.basename(env_batch.filename), caseroot)
+
+        lock_file(os.path.basename(env_batch.filename), caseroot)
 
         case.check_case(skip_pnl=skip_pnl, chksum=chksum)
+
         if job == case.get_primary_job():
             case.check_DA_settings()
 
@@ -225,6 +234,8 @@ def submit(
     caseroot = self.get_value("CASEROOT")
     if self.get_value("TEST"):
         casebaseid = self.get_value("CASEBASEID")
+        if os.path.exists(os.path.join(caseroot, "env_test.xml")):
+            self.set_initial_test_values()
         # This should take care of the race condition where the submitted job
         # begins immediately and tries to set RUN phase. We proactively assume
         # a passed SUBMIT phase. If this state is already PASS, don't set it again
@@ -275,6 +286,7 @@ def submit(
             caseroot=caseroot,
             custom_success_msg_functor=lambda x: x.split(":")[-1],
             is_batch=is_batch,
+            gitinterface=self._gitinterface,
         )
     except BaseException:  # Want to catch KeyboardInterrupt too
         # If something failed in the batch system, make sure to mark
@@ -287,12 +299,13 @@ def submit(
 
 
 def check_case(self, skip_pnl=False, chksum=False):
-    self.check_lockedfiles()
+    check_lockedfiles(self)
+
     if not skip_pnl:
         self.create_namelists()  # Must be called before check_all_input_data
+
     logger.info("Checking that inputdata is available as part of case submission")
-    if not self.get_value("TEST"):
-        self.check_all_input_data(chksum=chksum)
+    self.check_all_input_data(chksum=chksum)
 
     if self.get_value("COMP_WAV") == "ww":
         # the ww3 buildnml has dependencies on inputdata so we must run it again

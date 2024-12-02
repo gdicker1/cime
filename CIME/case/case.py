@@ -13,10 +13,12 @@ from CIME.XML.standard_module_setup import *
 # pylint: disable=import-error,redefined-builtin
 from CIME import utils
 from CIME.config import Config
-from CIME.utils import expect, get_cime_root, append_status
+from CIME.status import append_status
+from CIME.utils import expect, get_cime_root
 from CIME.utils import convert_to_type, get_model, set_model
 from CIME.utils import get_project, get_charge_account, check_name
 from CIME.utils import get_current_commit, safe_copy, get_cime_default_driver
+from CIME.gitinterface import GitInterface
 from CIME.locked_files import LOCKED_DIR, lock_file
 from CIME.XML.machines import Machines
 from CIME.XML.pes import Pes
@@ -77,7 +79,7 @@ class Case(object):
 
     """
 
-    from CIME.case.case_setup import case_setup
+    from CIME.case.case_setup import case_setup, _create_case_repo
     from CIME.case.case_clone import create_clone, _copy_user_modified_to_clone
     from CIME.case.case_test import case_test
     from CIME.case.case_submit import check_DA_settings, check_case, submit
@@ -90,11 +92,6 @@ class Case(object):
     )
     from CIME.case.case_run import case_run
     from CIME.case.case_cmpgen_namelists import case_cmpgen_namelists
-    from CIME.case.check_lockedfiles import (
-        check_lockedfile,
-        check_lockedfiles,
-        check_pelayouts_require_rebuild,
-    )
     from CIME.case.preview_namelists import create_dirs, create_namelists
     from CIME.case.check_input_data import (
         check_all_input_data,
@@ -103,7 +100,6 @@ class Case(object):
     )
 
     def __init__(self, case_root=None, read_only=True, record=False, non_local=False):
-
         if case_root is None:
             case_root = os.getcwd()
         expect(
@@ -169,7 +165,7 @@ class Case(object):
         self._component_description = {}
         self._is_env_loaded = False
         self._loaded_envs = None
-
+        self._gitinterface = None
         # these are user_mods as defined in the compset
         # Command Line user_mods are handled seperately
 
@@ -204,6 +200,10 @@ class Case(object):
                             mach == probed_machine,
                             f"Current machine {probed_machine} does not match case machine {mach}.",
                         )
+                if os.path.exists(os.path.join(self.get_value("CASEROOT"), ".git")):
+                    self._gitinterface = GitInterface(
+                        self.get_value("CASEROOT"), logger
+                    )
 
             self.initialize_derived_attributes()
 
@@ -270,10 +270,10 @@ class Case(object):
             self.tasks_per_node = env_mach_pes.get_tasks_per_node(
                 self.total_tasks, self.thread_count
             )
-
             self.num_nodes, self.spare_nodes = env_mach_pes.get_total_nodes(
                 self.total_tasks, self.thread_count
             )
+
             self.num_nodes += self.spare_nodes
 
         logger.debug(
@@ -687,7 +687,6 @@ class Case(object):
         # Loop through all of the files listed in COMPSETS_SPEC_FILE and find the file
         # that has a match for either the alias or the longname in that order
         for component in components:
-
             # Determine the compsets file for this component
             compsets_filename = files.get_value(
                 "COMPSETS_SPEC_FILE", {"component": component}
@@ -1164,6 +1163,7 @@ class Case(object):
         pes_rootpe = {}
         pes_pstrid = {}
         other = {}
+        append = {}
         comment = None
         force_tasks = None
         force_thrds = None
@@ -1192,6 +1192,7 @@ class Case(object):
                 pes_rootpe,
                 pes_pstrid,
                 other,
+                append,
                 comment,
             ) = pesobj.find_pes_layout(
                 self._gridname,
@@ -1219,9 +1220,24 @@ class Case(object):
         mach_pes_obj.add_comment(comment)
 
         if other is not None:
-            logger.info("setting additional fields from config_pes: {}".format(other))
+            logger.info(
+                "setting additional fields from config_pes: {}, append {}".format(
+                    other, append
+                )
+            )
             for key, value in list(other.items()):
-                self.set_value(key, value)
+                ovalue = ""
+                if (
+                    value.startswith('"')
+                    and value.endswith('"')
+                    or value.startswith("'")
+                    and value.endswith("'")
+                ):
+                    value = value[1:-1]
+                if key in append and append[key]:
+                    ovalue = self.get_value(key)
+
+                self.set_value(key, value + " " + ovalue)
 
         totaltasks = []
         for comp_class in self._component_classes:
@@ -1289,7 +1305,6 @@ class Case(object):
         gpu_type=None,
         gpu_offload=None,
     ):
-
         expect(
             check_name(compset_name, additional_chars="."),
             "Invalid compset name {}".format(compset_name),

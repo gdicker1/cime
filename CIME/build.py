@@ -4,11 +4,11 @@ functions for building CIME models
 import glob, shutil, time, threading, subprocess
 from pathlib import Path
 from CIME.XML.standard_module_setup import *
+from CIME.status import run_and_log_case_status
 from CIME.utils import (
     get_model,
     analyze_build_log,
     stringify_bool,
-    run_and_log_case_status,
     get_timestamp,
     run_sub_or_cmd,
     run_cmd,
@@ -20,7 +20,7 @@ from CIME.utils import (
     import_from_file,
 )
 from CIME.config import Config
-from CIME.locked_files import lock_file, unlock_file
+from CIME.locked_files import lock_file, unlock_file, check_lockedfiles
 from CIME.XML.files import Files
 
 logger = logging.getLogger(__name__)
@@ -161,7 +161,6 @@ def generate_makefile_macro(case, caseroot):
     their own macro.
     """
     with CmakeTmpBuildDir(macroloc=caseroot) as cmake_tmp:
-
         # Append CMakeLists.txt with compset specific stuff
         comps = _get_compset_comps(case)
         comps.extend(
@@ -338,6 +337,7 @@ def _build_model(
     thread_bad_results = []
     libroot = os.path.join(exeroot, "lib")
     bldroot = None
+    bld_threads = []
     for model, comp, nthrds, _, config_dir in complist:
         if buildlist is not None and model.lower() not in buildlist:
             continue
@@ -391,12 +391,13 @@ def _build_model(
             ),
         )
         t.start()
+        bld_threads.append(t)
 
         logs.append(file_build)
 
     # Wait for threads to finish
-    while threading.active_count() > 1:
-        time.sleep(1)
+    for bld_thread in bld_threads:
+        bld_thread.join()
 
     expect(not thread_bad_results, "\n".join(thread_bad_results))
 
@@ -653,7 +654,7 @@ def _build_checks(
 
     debugdir = "debug" if debug else "nodebug"
     threaddir = "threads" if build_threaded else "nothreads"
-    sharedpath = os.path.join(compiler, mpilib, debugdir, threaddir, comp_interface)
+    sharedpath = os.path.join(compiler, mpilib, debugdir, threaddir)
 
     logger.debug(
         "compiler={} mpilib={} debugdir={} threaddir={}".format(
@@ -755,10 +756,8 @@ def _build_libraries(
         logger.info("UFS_DRIVER is set to {}".format(ufs_driver))
     if ufs_driver and ufs_driver == "nems" and not cpl_in_complist:
         libs = []
-    elif case.get_value("MODEL") == "cesm" and comp_interface == "nuopc":
-        libs = ["gptl", "mct", "pio", "csm_share"]
     elif case.get_value("MODEL") == "cesm":
-        libs = ["gptl", "mct", "pio", "csm_share", "csm_share_cpl7"]
+        libs = ["gptl", "pio", "csm_share"]
     elif case.get_value("MODEL") == "e3sm":
         libs = ["gptl", "mct", "spio", "csm_share"]
     else:
@@ -809,7 +808,7 @@ def _build_libraries(
             # csm_share adds its own dir name
             full_lib_path = os.path.join(sharedlibroot, sharedpath)
         elif lib == "mpi-serial":
-            full_lib_path = os.path.join(sharedlibroot, sharedpath, "mct", lib)
+            full_lib_path = os.path.join(sharedlibroot, sharedpath, lib)
         elif lib == "cprnc":
             full_lib_path = os.path.join(sharedlibroot, compiler, "cprnc")
         else:
@@ -853,14 +852,9 @@ def _build_libraries(
         comp_lnd = case.get_value("COMP_LND")
         if comp_lnd == "clm":
             logging.info("         - Building clm library ")
-            esmfdir = "esmf" if case.get_value("USE_ESMF_LIB") else "noesmf"
-            bldroot = os.path.join(
-                sharedlibroot, sharedpath, comp_interface, esmfdir, "clm", "obj"
-            )
-            libroot = os.path.join(exeroot, sharedpath, comp_interface, esmfdir, "lib")
-            incroot = os.path.join(
-                exeroot, sharedpath, comp_interface, esmfdir, "include"
-            )
+            bldroot = os.path.join(sharedlibroot, sharedpath, "clm", "obj")
+            libroot = os.path.join(exeroot, sharedpath, "lib")
+            incroot = os.path.join(exeroot, sharedpath, "include")
             file_build = os.path.join(exeroot, "lnd.bldlog.{}".format(lid))
             config_lnd_dir = os.path.dirname(case.get_value("CONFIG_LND_FILE"))
 
@@ -1026,7 +1020,7 @@ def _clean_impl(case, cleanlist, clean_all, clean_depends):
             run_cmd_no_fail(clean_cmd)
 
     # unlink Locked files directory
-    unlock_file("env_build.xml")
+    unlock_file("env_build.xml", case.get_value("CASEROOT"))
 
     # reset following values in xml files
     case.set_value("SMP_BUILD", str(0))
@@ -1076,7 +1070,7 @@ def _case_build_impl(
 
     comp_classes = case.get_values("COMP_CLASSES")
 
-    case.check_lockedfiles(skip="env_batch")
+    check_lockedfiles(case, skip="env_batch")
 
     # Retrieve relevant case data
     # This environment variable gets set for cesm Make and
@@ -1292,7 +1286,7 @@ def post_build(case, logs, build_complete=False, save_build_provenance=True):
 
         case.flush()
 
-        lock_file("env_build.xml", caseroot=case.get_value("CASEROOT"))
+        lock_file("env_build.xml", case.get_value("CASEROOT"))
 
 
 ###############################################################################
@@ -1324,7 +1318,9 @@ def case_build(
         cb = cb + " (SHAREDLIB_BUILD)"
     if model_only == True:
         cb = cb + " (MODEL_BUILD)"
-    return run_and_log_case_status(functor, cb, caseroot=caseroot)
+    return run_and_log_case_status(
+        functor, cb, caseroot=caseroot, gitinterface=case._gitinterface
+    )
 
 
 ###############################################################################
@@ -1332,5 +1328,8 @@ def clean(case, cleanlist=None, clean_all=False, clean_depends=None):
     ###############################################################################
     functor = lambda: _clean_impl(case, cleanlist, clean_all, clean_depends)
     return run_and_log_case_status(
-        functor, "build.clean", caseroot=case.get_value("CASEROOT")
+        functor,
+        "build.clean",
+        caseroot=case.get_value("CASEROOT"),
+        gitinterface=case._gitinterface,
     )

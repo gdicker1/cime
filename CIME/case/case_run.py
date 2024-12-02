@@ -3,14 +3,19 @@ case_run is a member of Class Case
 '"""
 from CIME.XML.standard_module_setup import *
 from CIME.config import Config
-from CIME.utils import gzip_existing_file, new_lid, run_and_log_case_status
-from CIME.utils import run_sub_or_cmd, append_status, safe_copy, model_log, CIMEError
+from CIME.utils import gzip_existing_file, new_lid
+from CIME.utils import run_sub_or_cmd, safe_copy, model_log, CIMEError
 from CIME.utils import batch_jobid, is_comp_standalone
+from CIME.status import append_status, run_and_log_case_status
 from CIME.get_timing import get_timing
+from CIME.locked_files import check_lockedfiles
 
 import shutil, time, sys, os, glob
 
+TERMINATION_TEXT = ("HAS ENDED", "END OF MODEL RUN", "SUCCESSFUL TERMINATION")
+
 logger = logging.getLogger(__name__)
+
 
 ###############################################################################
 def _pre_run_check(case, lid, skip_pnl=False, da_cycle=0):
@@ -32,10 +37,14 @@ def _pre_run_check(case, lid, skip_pnl=False, da_cycle=0):
 
     # check for locked files, may impact BUILD_COMPLETE
     skip = None
+
     if case.get_value("EXTERNAL_WORKFLOW"):
         skip = "env_batch"
-    case.check_lockedfiles(skip=skip)
+
+    check_lockedfiles(case, skip=skip)
+
     logger.debug("check_lockedfiles OK")
+
     build_complete = case.get_value("BUILD_COMPLETE")
 
     # check that build is done
@@ -173,6 +182,7 @@ def _run_model_impl(case, lid, skip_pnl=False, da_cycle=0):
                 custom_success_msg_functor=msg_func,
                 caseroot=case.get_value("CASEROOT"),
                 is_batch=is_batch,
+                gitinterface=case._gitinterface,
             )
             cmd_success = True
         except CIMEError:
@@ -284,6 +294,7 @@ def _run_model(case, lid, skip_pnl=False, da_cycle=0):
         custom_success_msg_functor=msg_func,
         caseroot=case.get_value("CASEROOT"),
         is_batch=is_batch,
+        gitinterface=case._gitinterface,
     )
 
 
@@ -314,9 +325,14 @@ def _post_run_check(case, lid):
             cpl_logs.append(
                 os.path.join(rundir, file_prefix + "_%04d.log." % (inst + 1) + lid)
             )
+            if driver == "nuopc" and comp_standalone:
+                cpl_logs.append(
+                    os.path.join(rundir, "med_%04d.log." % (inst + 1) + lid)
+                )
     else:
         cpl_logs = [os.path.join(rundir, file_prefix + ".log." + lid)]
-
+        if driver == "nuopc" and comp_standalone:
+            cpl_logs.append(os.path.join(rundir, "med.log." + lid))
     cpl_logfile = cpl_logs[0]
     # find the last model.log and cpl.log
     model_logfile = os.path.join(rundir, model + ".log." + lid)
@@ -331,13 +347,7 @@ def _post_run_check(case, lid):
                 break
             with open(cpl_logfile, "r") as fd:
                 logfile = fd.read()
-                if (
-                    comp_standalone
-                    and "HAS ENDED" in logfile
-                    or "END OF MODEL RUN" in logfile
-                ):
-                    count_ok += 1
-                elif not comp_standalone and "SUCCESSFUL TERMINATION" in logfile:
+                if any([x in logfile for x in TERMINATION_TEXT]):
                     count_ok += 1
         if count_ok < cpl_ninst:
             expect(False, "Model did not complete - see {} \n ".format(cpl_logfile))
