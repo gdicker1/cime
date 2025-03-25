@@ -12,9 +12,6 @@ import stat as statlib
 from argparse import Action
 from contextlib import contextmanager
 
-# pylint: disable=deprecated-module
-from distutils import file_util
-
 # Return this error code if the scripts worked but tests failed
 TESTS_FAILED_ERR_CODE = 100
 logger = logging.getLogger(__name__)
@@ -1412,26 +1409,29 @@ def safe_copy(src_path, tgt_path, preserve_meta=True):
 
         if owner_uid == os.getuid():
             # I am the owner, copy file contents, permissions, and metadata
-            file_util.copy_file(
-                src_path,
-                tgt_path,
-                preserve_mode=preserve_meta,
-                preserve_times=preserve_meta,
-                verbose=0,
-            )
+            try:
+                shutil.copy2(
+                    src_path,
+                    tgt_path,
+                )
+            # ignore same file error
+            except shutil.SameFileError:
+                pass
         else:
             # I am not the owner, just copy file contents
             shutil.copyfile(src_path, tgt_path)
 
-    else:
+    elif preserve_meta:
         # We are making a new file, copy file contents, permissions, and metadata.
         # This can fail if the underlying directory is not writable by current user.
-        file_util.copy_file(
+        shutil.copy2(
             src_path,
             tgt_path,
-            preserve_mode=preserve_meta,
-            preserve_times=preserve_meta,
-            verbose=0,
+        )
+    else:
+        shutil.copy(
+            src_path,
+            tgt_path,
         )
 
     # If src file was executable, then the tgt file should be too
@@ -1583,7 +1583,7 @@ def get_charge_account(machobj=None, project=None):
 
     >>> import CIME
     >>> import CIME.XML.machines
-    >>> machobj = CIME.XML.machines.Machines(machine="theta")
+    >>> machobj = CIME.XML.machines.Machines(machine="ubuntu-latest")
     >>> project = get_project(machobj)
     >>> charge_account = get_charge_account(machobj, project)
     >>> project == charge_account
