@@ -37,6 +37,7 @@ NO_ORIGINAL = "had no original counterpart"
 FIELDLISTS_DIFFER = "had a different field list from"
 DIFF_COMMENT = "did NOT match"
 FAILED_OPEN = "Failed to open file"
+IDENTICAL = "the two files seem to be IDENTICAL"
 # COMPARISON_COMMENT_OPTIONS should include all of the above: these are any of the special
 # comment strings that describe the reason for a comparison failure
 COMPARISON_COMMENT_OPTIONS = set(
@@ -82,7 +83,6 @@ def copy_histfiles(case, suffix, match_suffix=None):
             )
 
             continue
-        comments += "  Copying hist files for model '{}'\n".format(model)
         test_hists = archive.get_latest_hist_files(
             casename, model, rundir, suffix=match_suffix, ref_case=ref_case
         )
@@ -92,6 +92,14 @@ def copy_histfiles(case, suffix, match_suffix=None):
             if not test_hist.endswith(".nc") or "once" in os.path.basename(test_hist):
                 logger.info("Will not compare non-netcdf file {}".format(test_hist))
                 continue
+            if model == "mom":
+                if "ocean_geometry" in test_hist:
+                    comments += "    skipping '{}'\n".format(test_hist)
+                    continue
+                if "mom6.ic" in test_hist:
+                    comments += "    skipping '{}'\n".format(test_hist)
+                    continue
+            comments += "  Copying hist files for model '{}'\n".format(model)
             new_file = "{}.{}".format(test_hist, suffix)
             if os.path.exists(new_file):
                 os.remove(new_file)
@@ -719,6 +727,8 @@ def get_ts_synopsis(comments):
 
     >>> get_ts_synopsis('')
     ''
+    >>> get_ts_synopsis('\n')
+    ''
     >>> get_ts_synopsis('big error')
     'big error'
     >>> get_ts_synopsis('big error\n')
@@ -740,12 +750,18 @@ def get_ts_synopsis(comments):
     >>> get_ts_synopsis('file1=\nfile2=\nFailed to open file\n')
     'ERROR CPRNC failed to open files'
     >>> get_ts_synopsis('file1=\nfile2=\nSome other error\n')
-    'Could not interpret CPRNC output'
+    'ERROR Could not interpret CPRNC output'
+    >>> get_ts_synopsis('file1=\nfile2=\n  diff_test: the two files seem to be IDENTICAL \n')
+    ''
     """
     comments = comments.strip()
 
     if comments == "" or "\n" not in comments:
         return comments
+
+    # Empty synopsis when files are identicial
+    if re.search(IDENTICAL, comments) is not None:
+        return ""
 
     fieldlist_differences = re.search(FIELDLISTS_DIFFER, comments) is not None
     baseline_fail = re.search(NO_COMPARE, comments) is not None
@@ -779,6 +795,6 @@ def get_ts_synopsis(comments):
     elif open_fail:
         synopsis = "ERROR CPRNC failed to open files"
     else:
-        synopsis = "Could not interpret CPRNC output"
+        synopsis = "ERROR Could not interpret CPRNC output"
 
     return synopsis
