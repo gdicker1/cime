@@ -2,13 +2,13 @@
 .. _check_case:
 
 ####################################################
-check_case 
+check_case
 ####################################################
 
-**check_case** is a script in CIMEROOT/scripts/Tools.
+**check_case** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./check_case --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

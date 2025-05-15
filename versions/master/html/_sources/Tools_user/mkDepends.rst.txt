@@ -2,13 +2,13 @@
 .. _mkDepends:
 
 ####################################################
-mkDepends 
+mkDepends
 ####################################################
 
-**mkDepends** is a script in CIMEROOT/scripts/Tools.
+**mkDepends** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./mkDepends --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

@@ -2,13 +2,13 @@
 .. _get_standard_makefile_args:
 
 ####################################################
-get_standard_makefile_args 
+get_standard_makefile_args
 ####################################################
 
-**get_standard_makefile_args** is a script in CIMEROOT/scripts/Tools.
+**get_standard_makefile_args** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./get_standard_makefile_args --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

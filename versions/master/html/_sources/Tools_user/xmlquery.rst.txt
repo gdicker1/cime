@@ -2,13 +2,13 @@
 .. _xmlquery:
 
 ####################################################
-xmlquery 
+xmlquery
 ####################################################
 
-**xmlquery** is a script in CIMEROOT/scripts/Tools.
+**xmlquery** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./xmlquery --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

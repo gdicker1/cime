@@ -2,13 +2,13 @@
 .. _simple_compare:
 
 ####################################################
-simple_compare 
+simple_compare
 ####################################################
 
-**simple_compare** is a script in CIMEROOT/scripts/Tools.
+**simple_compare** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./simple_compare --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

@@ -1,0 +1,53 @@
+CIME.scripts package
+====================
+
+Submodules
+----------
+
+CIME.scripts.create\_clone module
+---------------------------------
+
+.. automodule:: CIME.scripts.create_clone
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+CIME.scripts.create\_newcase module
+-----------------------------------
+
+.. automodule:: CIME.scripts.create_newcase
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+CIME.scripts.create\_test module
+--------------------------------
+
+.. automodule:: CIME.scripts.create_test
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+CIME.scripts.query\_config module
+---------------------------------
+
+.. automodule:: CIME.scripts.query_config
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+CIME.scripts.query\_testlists module
+------------------------------------
+
+.. automodule:: CIME.scripts.query_testlists
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: CIME.scripts
+   :members:
+   :show-inheritance:
+   :undoc-members:

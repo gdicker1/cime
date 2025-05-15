@@ -1,115 +1,55 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2. CIME Load Balancing Tool &mdash; CIME master documentation</title>
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="CIME master documentation" href="../index.html"/>
-        <link rel="up" title="Miscellaneous Tools" href="index.html"/>
-        <link rel="next" title="Glossary" href="../glossary/index.html"/>
-        <link rel="prev" title="1. CESM-ECT (CESM Ensemble Consistency Test):" href="ect.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=30d551ce"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Glossary" href="../glossary/index.html" />
+    <link rel="prev" title="1. CESM-ECT (CESM Ensemble Consistency Test):" href="ect.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
+        <div class="wy-side-nav-search" >
 
           
-            <a href="../index.html" class="icon icon-home"> CIME
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            CIME
           </a>
-
-          
-            
-            
-              <div class="version">
-                
-                  <div class="version-dropdown">
-                    <select class="version-list" id="version-list">
-                      <option value=''>master</option>
-                      
-                        
-                      
-                        
-                          <option value="">[placeholder]</option>
-                        
-                      
-                    </select>
-                  </div>
-                
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../what_cime/index.html">What is CIME?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/index.html">Case Control System Part 1: Basic Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../users_guide/index.html#case-control-system-part-2-configuration-porting-testing-and-use-cases">Case Control System Part 2: Configuration, Porting, Testing and Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data_models/index.html">Data Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../driver_cpl/index.html">Driver/Coupler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/index.html">Using the Case Control System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/index.html#configuring-the-case-control-system">Configuring the Case Control System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../build_cpl/index.html">Building a Coupled Model with CIME</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Miscellaneous Tools</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="ect.html">1. CESM-ECT (CESM Ensemble Consistency Test):</a></li>
@@ -133,71 +73,33 @@
 <li class="toctree-l1"><a class="reference internal" href="../Tools_api/modules.html">Tools</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">CIME</a>
-        
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="index.html">Miscellaneous Tools</a> &raquo;</li>
-        
-      <li>2. CIME Load Balancing Tool</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Miscellaneous Tools</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2. </span>CIME Load Balancing Tool</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/misc_tools/load-balancing-tool.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="cime-load-balancing-tool">
-<span id="load-balancing-tool"></span><h1>2. CIME Load Balancing Tool<a class="headerlink" href="#cime-load-balancing-tool" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="cime-load-balancing-tool">
+<span id="load-balancing-tool"></span><h1><span class="section-number">2. </span>CIME Load Balancing Tool<a class="headerlink" href="#cime-load-balancing-tool" title="Link to this heading"></a></h1>
 <blockquote>
 <div><p>Originally Developed by Sheri Mickelson <a class="reference external" href="mailto:mickelso&#37;&#52;&#48;ucar&#46;edu">mickelso<span>&#64;</span>ucar<span>&#46;</span>edu</a>
 and Yuri Alekseev (ALCF/Argonne National Laboratory</p>
@@ -225,14 +127,14 @@ steps:</p>
 </div>
 <p><em>For the impatient</em></p>
 <ol class="arabic simple">
-<li>set PYTHONPATH to include $CIME_DIR/scripts:$CIME_DIR/tools/load_balancing_tool</li>
-<li>create PE XML &lt;PESFILE&gt; file to describe the PE layouts for the timing runs</li>
-<li>$ ./load_balancing_submit.py –res &lt;RESOLUTION&gt; –compset &lt;COMPSET&gt; –pesfile &lt;PESFILE&gt;</li>
-<li>…  wait for jobs to run …</li>
-<li>$ ./load_balancing_solve.py –total-tasks &lt;N&gt; –blocksize 8</li>
+<li><p>set PYTHONPATH to include $CIME_DIR/scripts:$CIME_DIR/tools/load_balancing_tool</p></li>
+<li><p>create PE XML &lt;PESFILE&gt; file to describe the PE layouts for the timing runs</p></li>
+<li><p>$ ./load_balancing_submit.py –res &lt;RESOLUTION&gt; –compset &lt;COMPSET&gt; –pesfile &lt;PESFILE&gt;</p></li>
+<li><p>…  wait for jobs to run …</p></li>
+<li><p>$ ./load_balancing_solve.py –total-tasks &lt;N&gt; –blocksize 8</p></li>
 </ol>
-<div class="section" id="running-simulations-using-load-balancing-submit-py">
-<h2>2.1. Running simulations using load_balancing_submit.py<a class="headerlink" href="#running-simulations-using-load-balancing-submit-py" title="Permalink to this headline">¶</a></h2>
+<section id="running-simulations-using-load-balancing-submit-py">
+<h2><span class="section-number">2.1. </span>Running simulations using load_balancing_submit.py<a class="headerlink" href="#running-simulations-using-load-balancing-submit-py" title="Link to this heading"></a></h2>
 <p>Simulations can be run on a given system by executing the load_balancing_tool.py
 script, located in cime/tools/load_balancing_tool/load_balancing_tool_submit.py.
 This creates timing files in the case directory which will be used to solve
@@ -277,9 +179,9 @@ directly forwarded to the passed:</p>
      <span class="n">exist</span><span class="o">.</span> <span class="n">Removes</span> <span class="n">PFS_I</span><span class="o">*.</span><span class="n">res</span><span class="o">.</span><span class="n">compset</span><span class="o">.</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span>
 
 <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">options</span><span class="o">-</span><span class="n">file</span>
-     <span class="n">Add</span> <span class="n">extra</span> <span class="n">xml</span> <span class="n">options</span> <span class="n">to</span> <span class="n">the</span> <span class="n">timing</span> <span class="n">runs</span> <span class="kn">from</span> <span class="nn">a</span> <span class="n">user</span> <span class="n">file</span><span class="p">,</span>
+     <span class="n">Add</span> <span class="n">extra</span> <span class="n">xml</span> <span class="n">options</span> <span class="n">to</span> <span class="n">the</span> <span class="n">timing</span> <span class="n">runs</span> <span class="kn">from</span><span class="w"> </span><span class="nn">a</span> <span class="n">user</span> <span class="n">file</span><span class="p">,</span>
      <span class="n">these</span> <span class="n">options</span> <span class="n">will</span> <span class="n">be</span> <span class="nb">set</span> <span class="n">after</span> <span class="n">create_newcase</span> <span class="ow">and</span> <span class="n">before</span>
-     <span class="n">case</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span>
+     <span class="k">case</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span>
      <span class="n">This</span> <span class="n">text</span> <span class="n">file</span> <span class="n">should</span> <span class="n">have</span> <span class="n">one</span> <span class="n">variable</span> <span class="n">per</span> <span class="n">line</span> <span class="ow">in</span>
      <span class="n">the</span> <span class="nb">format</span> <span class="o">&lt;</span><span class="n">var</span><span class="o">&gt;=&lt;</span><span class="n">value</span><span class="o">&gt;.</span> <span class="n">Example</span><span class="p">:</span>
 
@@ -288,9 +190,9 @@ directly forwarded to the passed:</p>
      <span class="n">DOUT_S</span><span class="o">=</span><span class="n">FALSE</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="optimizing-the-layout-using-load-balacing-solve-py">
-<h2>2.2. Optimizing the layout using load_balacing_solve.py<a class="headerlink" href="#optimizing-the-layout-using-load-balacing-solve-py" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="optimizing-the-layout-using-load-balacing-solve-py">
+<h2><span class="section-number">2.2. </span>Optimizing the layout using load_balacing_solve.py<a class="headerlink" href="#optimizing-the-layout-using-load-balacing-solve-py" title="Link to this heading"></a></h2>
 <p>Reads timing data created with load_balancing_submit.py (or otherwise,
 see –timing-files option) and solves an mixed integer optimization problem
 using these timings. The default layout (IceLndAtmOcn) minimizes the cost per
@@ -310,20 +212,20 @@ Balancing Tool)</p>
 all timing data have the same threading structure (i.e. all ATM runs use two threads per PE)</p>
 <p>Options recognized by the solver:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">layout</span> <span class="o">&lt;</span><span class="n">class_name</span><span class="o">&gt;</span>
-    <span class="n">Name</span> <span class="n">of</span> <span class="n">the</span> <span class="k">class</span> <span class="nc">used</span> <span class="n">to</span> <span class="n">solve</span> <span class="n">the</span> <span class="n">layout</span> <span class="n">problem</span><span class="o">.</span> <span class="n">The</span> <span class="n">only</span> <span class="n">built</span><span class="o">-</span><span class="ow">in</span>
-    <span class="k">class</span> <span class="nc">at</span> <span class="n">this</span> <span class="n">time</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">default</span> <span class="n">IceLndAtmOcn</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">can</span> <span class="n">be</span> <span class="n">extended</span><span class="o">.</span>
+    <span class="n">Name</span> <span class="n">of</span> <span class="n">the</span> <span class="k">class</span><span class="w"> </span><span class="nc">used</span> <span class="n">to</span> <span class="n">solve</span> <span class="n">the</span> <span class="n">layout</span> <span class="n">problem</span><span class="o">.</span> <span class="n">The</span> <span class="n">only</span> <span class="n">built</span><span class="o">-</span><span class="ow">in</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">at</span> <span class="n">this</span> <span class="n">time</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">default</span> <span class="n">IceLndAtmOcn</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">can</span> <span class="n">be</span> <span class="n">extended</span><span class="o">.</span>
     <span class="n">See</span> <span class="n">section</span> <span class="mi">4</span> <span class="n">Extending</span> <span class="n">the</span> <span class="n">Load</span> <span class="n">Balancing</span> <span class="n">Tool</span>
 
 <span class="o">--</span><span class="n">total</span><span class="o">-</span><span class="n">tasks</span> <span class="n">N</span>    <span class="p">(</span><span class="n">required</span><span class="p">)</span>
     <span class="n">The</span> <span class="n">total</span> <span class="n">number</span> <span class="n">of</span> <span class="n">PEs</span> <span class="n">that</span> <span class="n">can</span> <span class="n">be</span> <span class="n">assigned</span>
 
 <span class="o">--</span><span class="n">timing</span><span class="o">-</span><span class="nb">dir</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span>
-    <span class="n">Optional</span><span class="p">,</span> <span class="n">read</span> <span class="ow">in</span> <span class="nb">all</span> <span class="n">files</span> <span class="kn">from</span> <span class="nn">this</span> <span class="n">directory</span> <span class="k">as</span> <span class="n">timing</span> <span class="n">data</span>
+    <span class="n">Optional</span><span class="p">,</span> <span class="n">read</span> <span class="ow">in</span> <span class="nb">all</span> <span class="n">files</span> <span class="kn">from</span><span class="w"> </span><span class="nn">this</span> <span class="n">directory</span> <span class="k">as</span> <span class="n">timing</span> <span class="n">data</span>
 
 <span class="o">--</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span> <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;</span>
     <span class="n">The</span> <span class="n">test</span><span class="o">-</span><span class="nb">id</span> <span class="n">used</span> <span class="n">when</span> <span class="n">submitting</span> <span class="n">the</span> <span class="n">timing</span> <span class="n">jobs</span><span class="o">.</span> <span class="n">This</span> <span class="n">option</span> <span class="n">can</span> <span class="n">also</span>
     <span class="n">be</span> <span class="n">used</span> <span class="n">to</span> <span class="nb">set</span> <span class="n">a</span> <span class="n">single</span> <span class="n">directory</span> <span class="n">where</span> <span class="n">ALL</span> <span class="n">of</span> <span class="n">the</span> <span class="n">timing</span> <span class="n">data</span> <span class="ow">is</span><span class="o">.</span>
-    <span class="n">The</span> <span class="n">solver</span> <span class="n">will</span> <span class="n">extract</span> <span class="n">data</span> <span class="kn">from</span> <span class="nn">timing</span> <span class="n">files</span> <span class="n">that</span> <span class="n">match</span> <span class="n">either</span> <span class="n">pattern</span><span class="p">:</span>
+    <span class="n">The</span> <span class="n">solver</span> <span class="n">will</span> <span class="n">extract</span> <span class="n">data</span> <span class="kn">from</span><span class="w"> </span><span class="nn">timing</span> <span class="n">files</span> <span class="n">that</span> <span class="n">match</span> <span class="n">either</span> <span class="n">pattern</span><span class="p">:</span>
        <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;.</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span><span class="o">/</span><span class="n">timing</span><span class="o">/</span><span class="n">timing</span><span class="o">.&lt;</span><span class="n">prefix</span><span class="o">&gt;.</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span>
        <span class="o">&lt;</span><span class="n">prefix</span><span class="o">&gt;.</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span><span class="o">/</span><span class="n">timing</span><span class="o">/</span><span class="n">timing</span><span class="o">.&lt;</span><span class="n">prefix</span><span class="o">&gt;.</span><span class="n">test</span><span class="o">-</span><span class="nb">id</span>
 
@@ -340,20 +242,20 @@ all timing data have the same threading structure (i.e. all ATM runs use two thr
         <span class="n">will</span> <span class="nb">set</span> <span class="n">the</span> <span class="n">GLC</span> <span class="n">blocksize</span> <span class="n">to</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">all</span> <span class="n">other</span> <span class="n">blocksizes</span> <span class="n">to</span> <span class="mi">8</span>
 
 <span class="o">--</span><span class="n">milp</span><span class="o">-</span><span class="n">output</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
-    <span class="n">After</span> <span class="n">extracting</span> <span class="n">data</span> <span class="kn">from</span> <span class="nn">timing</span> <span class="n">files</span> <span class="ow">and</span> <span class="n">before</span> <span class="n">solving</span><span class="p">,</span> <span class="n">write</span> <span class="n">the</span>
+    <span class="n">After</span> <span class="n">extracting</span> <span class="n">data</span> <span class="kn">from</span><span class="w"> </span><span class="nn">timing</span> <span class="n">files</span> <span class="ow">and</span> <span class="n">before</span> <span class="n">solving</span><span class="p">,</span> <span class="n">write</span> <span class="n">the</span>
     <span class="n">data</span> <span class="n">to</span> <span class="n">a</span> <span class="o">.</span><span class="n">json</span> <span class="n">file</span> <span class="n">where</span> <span class="ow">is</span> <span class="n">can</span> <span class="n">be</span> <span class="n">analyzed</span> <span class="ow">or</span> <span class="n">manually</span> <span class="n">edited</span><span class="o">.</span>
 
 <span class="o">--</span><span class="n">milp</span><span class="o">-</span><span class="nb">input</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
-    <span class="n">Read</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">problem</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">given</span> <span class="o">.</span><span class="n">json</span> <span class="n">file</span> <span class="n">instead</span> <span class="n">of</span> <span class="n">extracting</span> <span class="kn">from</span>
-    <span class="nn">timing</span> <span class="n">files</span><span class="o">.</span>
+    <span class="n">Read</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">problem</span> <span class="kn">from</span><span class="w"> </span><span class="nn">the</span> <span class="n">given</span> <span class="o">.</span><span class="n">json</span> <span class="n">file</span> <span class="n">instead</span> <span class="n">of</span> <span class="n">extracting</span> <span class="kn">from</span>
+<span class="w">    </span><span class="nn">timing</span> <span class="n">files</span><span class="o">.</span>
 
 <span class="o">--</span><span class="n">pe</span><span class="o">-</span><span class="n">output</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span>
     <span class="n">Write</span> <span class="n">the</span> <span class="n">solution</span> <span class="n">PE</span> <span class="n">layout</span> <span class="n">to</span> <span class="n">a</span> <span class="n">potential</span> <span class="n">pe</span> <span class="n">xml</span> <span class="n">file</span><span class="o">.</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="more-about-the-algorithm">
-<h2>2.3. More about the algorithm<a class="headerlink" href="#more-about-the-algorithm" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="more-about-the-algorithm">
+<h2><span class="section-number">2.3. </span>More about the algorithm<a class="headerlink" href="#more-about-the-algorithm" title="Link to this heading"></a></h2>
 <p>Before solving the mixed-integer linear program, a model of the cost vs ntasks
 function is constructed for each component.</p>
 <p>Given a component data set of costs (C1,C2,..,Cn) and nblocks (N1,N2,..,Nn),
@@ -400,9 +302,9 @@ follows from the layout:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">NOTES</span><span class="p">:</span> <span class="n">variable</span> <span class="n">N</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="n">number</span> <span class="n">of</span> <span class="n">tasks</span> <span class="n">assigned</span> <span class="k">for</span> <span class="n">component</span> <span class="n">c</span>
        <span class="n">variable</span> <span class="n">NB</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">blocks</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">component</span> <span class="n">c</span>
        <span class="n">constant</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="n">_i</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">cost</span> <span class="n">contributed</span> <span class="n">by</span> <span class="n">component</span> <span class="n">c</span> <span class="kn">from</span>
-                     <span class="nn">timing</span> <span class="n">data</span> <span class="nb">set</span> <span class="n">i</span>
+<span class="w">                     </span><span class="nn">timing</span> <span class="n">data</span> <span class="nb">set</span> <span class="n">i</span>
        <span class="n">constant</span> <span class="n">N</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="n">_i</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">ntasks</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">component</span> <span class="n">c</span> <span class="kn">from</span>
-                     <span class="nn">timing</span> <span class="n">data</span> <span class="nb">set</span> <span class="n">i</span>
+<span class="w">                     </span><span class="nn">timing</span> <span class="n">data</span> <span class="nb">set</span> <span class="n">i</span>
 
          <span class="n">____________________</span>
         <span class="o">|</span> <span class="n">ICE</span>  <span class="o">|</span>  <span class="n">LND</span>  <span class="o">|</span>     <span class="o">|</span>
@@ -436,27 +338,27 @@ follows from the layout:</p>
 <p>This MILP is solved using the PuLP python interface to the COIN-CBC solver
 <a class="reference external" href="https://pythonhosted.org/PuLP/">https://pythonhosted.org/PuLP/</a>
 <a class="reference external" href="https://www.coin-or.org/Cbc/">https://www.coin-or.org/Cbc/</a></p>
-</div>
-<div class="section" id="extending-the-load-balancing-tool">
-<h2>2.4. Extending the Load Balancing Tool<a class="headerlink" href="#extending-the-load-balancing-tool" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="extending-the-load-balancing-tool">
+<h2><span class="section-number">2.4. </span>Extending the Load Balancing Tool<a class="headerlink" href="#extending-the-load-balancing-tool" title="Link to this heading"></a></h2>
 <p>The file $CIME_DIR/tools/load_balancing_tool/optimize_model.py
 contains a base class OptimizeModel as well as an implementation class
 IceLndAtmOcn. Any layout solver will look similar to IceLndAtmOcn
 except for the components involved and the layout-specific constraints.</p>
 <p>Example class and inherited methods that should be overridden:</p>
 <p>file my_new_layout.py:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">optimize_model</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optimize_model</span>
 
-<span class="k">class</span> <span class="nc">MyNewLayout</span><span class="p">(</span><span class="n">optimize_model</span><span class="o">.</span><span class="n">OptimizeModel</span><span class="p">)</span>
-   <span class="k">def</span> <span class="nf">get_required_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-       <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyNewLayout</span><span class="p">(</span><span class="n">optimize_model</span><span class="o">.</span><span class="n">OptimizeModel</span><span class="p">)</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">get_required_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">       </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       Should be overridden by derived class. Return a list of required</span>
 <span class="sd">       components (capitalized) used in the layout.</span>
 <span class="sd">       Example: return [&#39;ATM&#39;, &#39;LND&#39;, &#39;ICE&#39;]</span>
 <span class="sd">       &quot;&quot;&quot;</span>
 
-   <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the optimization.</span>
 <span class="sd">        Must set self.state using LpStatus object</span>
 <span class="sd">        LpStatusOptimal    -&gt; STATE_SOLVED_OK</span>
@@ -477,21 +379,18 @@ except for the components involved and the layout-specific constraints.</p>
 <span class="sd">        of these variable keys and their values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-   <span class="k">def</span> <span class="nf">get_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-       <span class="sd">&quot;&quot;&quot;</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">get_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">       </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       Return a dictionary of the solution variables, can be overridden.</span>
 <span class="sd">       Default implementation returns values in self.X</span>
 <span class="sd">       &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>To use this new layout:</dt>
-<dd><ol class="first last arabic">
-<li><p class="first">save the class MyNewLayout in file my_new_layout.py</p>
-</li>
-<li><p class="first">make sure that my_new_layout.py is in PYTHONPATH</p>
-</li>
-<li><p class="first">Use those names in your execution command line argument to –layout</p>
+<dl>
+<dt>To use this new layout:</dt><dd><ol class="arabic">
+<li><p>save the class MyNewLayout in file my_new_layout.py</p></li>
+<li><p>make sure that my_new_layout.py is in PYTHONPATH</p></li>
+<li><p>Use those names in your execution command line argument to –layout</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./load_balancing_solve.py ... --layout my_new_layout.MyNewLayout
 </pre></div>
 </div>
@@ -502,26 +401,26 @@ except for the components involved and the layout-specific constraints.</p>
 <p>To permanently add to CIME:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>add MyNewLayout class to layouts.py</li>
-<li>run using ‘–layout MyNewLayout’</li>
-<li>add test in tests/load_balance_test.py that uses that name in command
-line argument (see test for atm_lnd)</li>
-<li>make pull request</li>
+<li><p>add MyNewLayout class to layouts.py</p></li>
+<li><p>run using ‘–layout MyNewLayout’</p></li>
+<li><p>add test in tests/load_balance_test.py that uses that name in command
+line argument (see test for atm_lnd)</p></li>
+<li><p>make pull request</p></li>
 </ol>
 </div></blockquote>
-</div>
-<div class="section" id="testing">
-<h2>2.5. Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="testing">
+<h2><span class="section-number">2.5. </span>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
 <p>To run the provided test suite:</p>
 <blockquote>
 <div><ol class="arabic">
-<li><p class="first">set PYTHONPATH to include CIME libraries:</p>
+<li><p>set PYTHONPATH to include CIME libraries:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export CIME_DIR=/path/to/cime
 $ export PYTHONPATH=$CIME_DIR/scripts:$CIME_DIR/tools/load_balancing_tool
 </pre></div>
 </div>
 </li>
-<li><p class="first">To run an example:</p>
+<li><p>To run an example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd $CIME_DIR/tools/load_balancing_tool
 $ ./load_balancing_solve.py --json-input tests/example.json --blocksize 8
 Solving Mixed Integer Linear Program using PuLP interface to COIN-CBC
@@ -543,7 +442,7 @@ NTASKS_TOTAL = 1024
 </pre></div>
 </div>
 </li>
-<li><p class="first">To run the test suite:</p>
+<li><p>To run the test suite:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd $CIME_DIR/tools/load_balancing_tool
 $ ./tests/load_balancing_test.py
 </pre></div>
@@ -551,77 +450,78 @@ $ ./tests/load_balancing_test.py
 </li>
 </ol>
 </div></blockquote>
-</div>
-</div>
+</section>
+</section>
 
 
-           </div>
-           <div class="articleComments">
-            
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../glossary/index.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="ect.html" class="btn btn-neutral" title="1. CESM-ECT (CESM Ensemble Consistency Test):" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ect.html" class="btn btn-neutral float-left" title="1. CESM-ECT (CESM Ensemble Consistency Test):" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../glossary/index.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2017, U.S. National Science Foundation and U.S. Department of Energy.
-
-    </p>
+    <p>&#169; Copyright 2017, U.S. National Science Foundation and U.S. Department of Energy.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
      
 <script>var version_json_loc = "../../../versions.json";</script>
 
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/pop_ver.js"></script>
-    
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+    let baseUriRegex = /(.*\/cime)\/.*/g;
+    let parsedUri = baseUriRegex.exec(document.baseURI);
+
+    if (parsedUri != null && parsedUri.length == 2) {
+      let baseUri = parsedUri[1];
+
+      $.get(`${baseUri}/versions/versions.json`, function(data) {
+        let versionElement = $("#versions");
+
+        Object.keys(data).forEach(function(key) {
+          let value = data[key];
+
+          let item = `<dd><a href="${baseUri}/versions/${key}/html/">${value}</a></dd>`
+
+          versionElement.append(item);
+        });
       });
+    }
   </script>
-   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Read the Docs</span>
+      v: master
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      
+      <dl id="versions">
+        <dt>Versions</dt>
+      </dl>
+      
+      
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
 </body>
 </html>

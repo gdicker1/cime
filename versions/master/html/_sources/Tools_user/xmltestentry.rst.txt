@@ -2,13 +2,13 @@
 .. _xmltestentry:
 
 ####################################################
-xmltestentry 
+xmltestentry
 ####################################################
 
-**xmltestentry** is a script in CIMEROOT/scripts/Tools.
+**xmltestentry** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./xmltestentry --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

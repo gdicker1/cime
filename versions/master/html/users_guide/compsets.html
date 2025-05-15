@@ -1,135 +1,74 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>2. Component sets &mdash; CIME master documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Component sets &mdash; CIME master documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="CIME master documentation" href="../index.html"/>
-        <link rel="up" title="Case Control System Part 1: Basic Usage" href="index.html"/>
-        <link rel="next" title="3. Model grids" href="grids.html"/>
-        <link rel="prev" title="1. Main Configuration File" href="cime-internals.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=30d551ce"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Model grids" href="grids.html" />
+    <link rel="prev" title="2. Components" href="components.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
+        <div class="wy-side-nav-search" >
 
           
-            <a href="../index.html" class="icon icon-home"> CIME
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            CIME
           </a>
-
-          
-            
-            
-              <div class="version">
-                
-                  <div class="version-dropdown">
-                    <select class="version-list" id="version-list">
-                      <option value=''>master</option>
-                      
-                        
-                      
-                        
-                          <option value="">[placeholder]</option>
-                        
-                      
-                    </select>
-                  </div>
-                
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../what_cime/index.html">What is CIME?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Case Control System Part 1: Basic Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html#case-control-system-part-2-configuration-porting-testing-and-use-cases">Case Control System Part 2: Configuration, Porting, Testing and Use Cases</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Using the Case Control System</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#configuring-the-case-control-system">Configuring the Case Control System</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cime-internals.html">1. Main Configuration File</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">2. Component sets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#compset-longname">2.1. Compset longname</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#component-specific-settings-in-a-compset">2.2. Component specific settings in a compset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#creating-new-compsets">2.3. Creating New Compsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html">2. Components</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3. Component sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compset-longname">3.1. Compset longname</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#component-specific-settings-in-a-compset">3.2. Component specific settings in a compset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-new-compsets">3.3. Creating New Compsets</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="grids.html">3. Model grids</a></li>
-<li class="toctree-l2"><a class="reference internal" href="machine.html">4. Defining the machine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pes-threads.html">5. Controlling processors and threads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="porting-cime.html">6. Porting and validating CIME on a new platform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="timers.html">7. Timers and timing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html">8. Testing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="unit_testing.html">9. Fortran Unit Testing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="multi-instance.html">10. Multi-instance component functionality</a></li>
-<li class="toctree-l2"><a class="reference internal" href="workflows.html">11. Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cime-dir.html">12. Directory content</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grids.html">4. Model grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine.html">5. Defining the machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pes-threads.html">6. Controlling processors and threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="porting-cime.html">7. Porting and validating CIME on a new platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html">8. Fortran Unit Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-instance.html">9. Multi-instance component functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html">10. Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cime-dir.html">11. Directory content</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html#indices-and-tables">Indices and tables</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../data_models/index.html">Data Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../driver_cpl/index.html">Driver/Coupler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../build_cpl/index.html">Building a Coupled Model with CIME</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc_tools/index.html">Miscellaneous Tools</a></li>
 </ul>
@@ -141,71 +80,33 @@
 <li class="toctree-l1"><a class="reference internal" href="../Tools_api/modules.html">Tools</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">CIME</a>
-        
       </nav>
 
-
-      
       <div class="wy-nav-content">
         <div class="rst-content">
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="index.html">Case Control System Part 1: Basic Usage</a> &raquo;</li>
-        
-      <li>2. Component sets</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Using the Case Control System</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>Component sets</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/users_guide/compsets.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="component-sets">
-<span id="compsets"></span><h1>2. Component sets<a class="headerlink" href="#component-sets" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="component-sets">
+<span id="compsets"></span><h1><span class="section-number">3. </span>Component sets<a class="headerlink" href="#component-sets" title="Link to this heading"></a></h1>
 <p>In CIME, multiple components can define compsets that are targeted to their model development needs.</p>
 <p>Each component supports a set of compset longnames that are used in testing and supported in out of the box configurations.</p>
 <p>To determine if the compset name to <a class="reference external" href="../Tools_user/create_newcase.html">create_newcase</a> is a supported component, CIME looks in the <strong>config_files.xml</strong> file and parses the
@@ -236,8 +137,8 @@ the <strong>primary component</strong> As an example, the primary component for 
 land and cice (in prescribed mode) and a data ocean is the atmosphere component (for cesm this is CAM) because the compset
 is defined, using the above example, in <code class="docutils literal notranslate"><span class="pre">$SRCROOT/components/cam/cime_config/config_compsets.xml</span></code>
 In a compset where all components are prognostic, the primary component will be <strong>allactive</strong>.</p>
-<div class="section" id="compset-longname">
-<span id="defining-compsets"></span><h2>2.1. Compset longname<a class="headerlink" href="#compset-longname" title="Permalink to this headline">¶</a></h2>
+<section id="compset-longname">
+<span id="defining-compsets"></span><h2><span class="section-number">3.1. </span>Compset longname<a class="headerlink" href="#compset-longname" title="Link to this heading"></a></h2>
 <p>Each config_compsets.xml file has a list of allowed component sets in the form of a longname and an alias.</p>
 <p>A compset longname has this form:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TIME_ATM</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_LND</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_ICE</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_OCN</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_ROF</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_GLC</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_WAV</span><span class="p">[</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span><span class="n">_ESP</span><span class="p">[</span><span class="n">_BGC</span><span class="o">%</span><span class="n">phys</span><span class="p">]</span>
@@ -262,13 +163,13 @@ In a compset where all components are prognostic, the primary component will be 
 For example, DOCN%DOM is the DOCN data ocean (rather than slab-ocean) mode.
 <strong>All</strong> the possible %phys choices for each component are listed by calling <a class="reference external" href="../Tools_user/query_config.html">query_config –compsets</a>.
 <strong>All</strong> data models have a %phys option that corresponds to the data model mode.</p>
-</div>
-<div class="section" id="component-specific-settings-in-a-compset">
-<span id="defining-component-specific-compset-settings"></span><h2>2.2. Component specific settings in a compset<a class="headerlink" href="#component-specific-settings-in-a-compset" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="component-specific-settings-in-a-compset">
+<span id="defining-component-specific-compset-settings"></span><h2><span class="section-number">3.2. </span>Component specific settings in a compset<a class="headerlink" href="#component-specific-settings-in-a-compset" title="Link to this heading"></a></h2>
 <p>Every model component also contains a <strong>config_component.xml</strong> file that has two functions:</p>
 <ol class="arabic simple">
-<li>Specifying the component-specific definitions of what can appear after the <code class="docutils literal notranslate"><span class="pre">%</span></code> in the compset longname, (for example, <code class="docutils literal notranslate"><span class="pre">DOM</span></code> in <code class="docutils literal notranslate"><span class="pre">DOCN%DOM</span></code>).</li>
-<li>Specifying the compset-specific <code class="docutils literal notranslate"><span class="pre">$CASEROOT</span></code> xml variables.</li>
+<li><p>Specifying the component-specific definitions of what can appear after the <code class="docutils literal notranslate"><span class="pre">%</span></code> in the compset longname, (for example, <code class="docutils literal notranslate"><span class="pre">DOM</span></code> in <code class="docutils literal notranslate"><span class="pre">DOCN%DOM</span></code>).</p></li>
+<li><p>Specifying the compset-specific <code class="docutils literal notranslate"><span class="pre">$CASEROOT</span></code> xml variables.</p></li>
 </ol>
 <p>CIME first parses the following nodes to identify appropriate <strong>config_component.xml</strong> files for the driver. There are two such files; one is model-independent and the other is model-specific.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;entry id=&quot;CONFIG_CPL_FILE&quot;&gt;
@@ -313,15 +214,15 @@ For example, DOCN%DOM is the DOCN data ocean (rather than slab-ocean) mode.
 <p>If the compset’s atm component attribute is <code class="docutils literal notranslate"><span class="pre">datm</span></code>, the file <code class="docutils literal notranslate"><span class="pre">$CIMEROOT/components/data_comps/datm/cime_config/config_component.xml</span></code> specifies all possible component settings for <code class="docutils literal notranslate"><span class="pre">DATM</span></code>.</p>
 <p>The schema for every <strong>config_component.xml</strong> file has a <code class="docutils literal notranslate"><span class="pre">&lt;description&gt;</span></code> node that specifies all possible values that can follow the <code class="docutils literal notranslate"><span class="pre">%</span></code> character in the compset name.</p>
 <p>To list the possible values, use the <a class="reference external" href="../Tools_user/query_config.html">query_config –component datm</a> command.</p>
-</div>
-<div class="section" id="creating-new-compsets">
-<span id="id1"></span><h2>2.3. Creating New Compsets<a class="headerlink" href="#creating-new-compsets" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="creating-new-compsets">
+<span id="id1"></span><h2><span class="section-number">3.3. </span>Creating New Compsets<a class="headerlink" href="#creating-new-compsets" title="Link to this heading"></a></h2>
 <p>A description of how CIME interprets a compset name is given in the section <a class="reference internal" href="#defining-compsets"><span class="std std-ref">Compset longname</span></a> .</p>
 <p>To create a new compset, you will at a minimum have to:</p>
 <ol class="arabic simple">
-<li>edit the approprite <code class="docutils literal notranslate"><span class="pre">config_components.xml</span></code> file(s) to add your new requirements</li>
-<li>edit associate <code class="docutils literal notranslate"><span class="pre">namelist_definitions_xxx.xml</span></code> in the associated <code class="docutils literal notranslate"><span class="pre">cime_config</span></code> directories.
-(e.g. if a change is made to the the <code class="docutils literal notranslate"><span class="pre">config_components.xml</span></code> for <code class="docutils literal notranslate"><span class="pre">DOCN</span></code> then <code class="docutils literal notranslate"><span class="pre">namelist_definitions_docn.xml</span></code> file will also need to be modified).</li>
+<li><p>edit the approprite <code class="docutils literal notranslate"><span class="pre">config_components.xml</span></code> file(s) to add your new requirements</p></li>
+<li><p>edit associate <code class="docutils literal notranslate"><span class="pre">namelist_definitions_xxx.xml</span></code> in the associated <code class="docutils literal notranslate"><span class="pre">cime_config</span></code> directories.
+(e.g. if a change is made to the the <code class="docutils literal notranslate"><span class="pre">config_components.xml</span></code> for <code class="docutils literal notranslate"><span class="pre">DOCN</span></code> then <code class="docutils literal notranslate"><span class="pre">namelist_definitions_docn.xml</span></code> file will also need to be modified).</p></li>
 </ol>
 <p>It is important to point out, that you will need expertise in the target component(s) you are trying to modify in order to add new compset functionality for that particular component.
 We provide a few examples below that outline this process for a few simple cases.</p>
@@ -329,9 +230,9 @@ We provide a few examples below that outline this process for a few simple cases
 This would imply when parsing the compset longname, CIME would need to be able to recognize the string <code class="docutils literal notranslate"><span class="pre">_DOCN%FOO_</span></code>.
 To enable this, you will need to do the following:</p>
 <ol class="arabic">
-<li><p class="first">edit <code class="docutils literal notranslate"><span class="pre">$CIMEROOT/src/components/data_comps/docn/cime_config/config_component.xml</span></code> (see the <code class="docutils literal notranslate"><span class="pre">FOO</span></code> additions below).</p>
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">$CIMEROOT/src/components/data_comps/docn/cime_config/config_component.xml</span></code> (see the <code class="docutils literal notranslate"><span class="pre">FOO</span></code> additions below).</p>
 <ul>
-<li><p class="first">add an entry to the <code class="docutils literal notranslate"><span class="pre">&lt;description</span> <span class="pre">modifier</span> <span class="pre">block=&quot;1&quot;&gt;</span></code> block as shown below</p>
+<li><p>add an entry to the <code class="docutils literal notranslate"><span class="pre">&lt;description</span> <span class="pre">modifier</span> <span class="pre">block=&quot;1&quot;&gt;</span></code> block as shown below</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">description</span> <span class="n">modifier_mode</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="o">&gt;</span>
    <span class="o">&lt;</span><span class="n">desc</span> <span class="n">ocn</span><span class="o">=</span><span class="s2">&quot;DOCN...[</span><span class="si">%F</span><span class="s2">OO]&quot;</span><span class="o">&gt;</span><span class="n">DOCN</span> <span class="o">&lt;/</span><span class="n">desc</span><span class="o">&gt;</span>
    <span class="o">...</span>
@@ -341,7 +242,7 @@ To enable this, you will need to do the following:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">add an entry to the <code class="docutils literal notranslate"><span class="pre">&lt;entry</span> <span class="pre">id=&quot;DOCN_MODE&quot;&gt;</span></code> block as shown below:</p>
+<li><p>add an entry to the <code class="docutils literal notranslate"><span class="pre">&lt;entry</span> <span class="pre">id=&quot;DOCN_MODE&quot;&gt;</span></code> block as shown below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">entry</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;DOCN_MODE&quot;</span><span class="o">&gt;</span>
    <span class="o">....</span>
    <span class="o">&lt;</span><span class="n">values</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="o">&gt;</span>
@@ -352,13 +253,12 @@ To enable this, you will need to do the following:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">modify any of the other xml entries that need a new dependence on <code class="docutils literal notranslate"><span class="pre">FOO</span></code></p>
-</li>
+<li><p>modify any of the other xml entries that need a new dependence on <code class="docutils literal notranslate"><span class="pre">FOO</span></code></p></li>
 </ul>
 </li>
-<li><p class="first">edit <code class="docutils literal notranslate"><span class="pre">$CIMEROOT/src/components/data_comps/docn/cime_config/namelist_definition_docn.xml</span></code> (see the <code class="docutils literal notranslate"><span class="pre">FOO</span></code> additions below).</p>
+<li><p>edit <code class="docutils literal notranslate"><span class="pre">$CIMEROOT/src/components/data_comps/docn/cime_config/namelist_definition_docn.xml</span></code> (see the <code class="docutils literal notranslate"><span class="pre">FOO</span></code> additions below).</p>
 <ul>
-<li><p class="first">add an entry to the <code class="docutils literal notranslate"><span class="pre">datamode</span></code> block as shown below.</p>
+<li><p>add an entry to the <code class="docutils literal notranslate"><span class="pre">datamode</span></code> block as shown below.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">entry</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;datamode&quot;</span><span class="o">&gt;</span>
    <span class="o">....</span>
    <span class="o">&lt;</span><span class="n">valid_values</span><span class="o">&gt;...</span><span class="n">FOO</span><span class="o">&lt;/</span><span class="n">valid_values</span><span class="o">&gt;</span>
@@ -367,86 +267,86 @@ To enable this, you will need to do the following:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">add additional changes to <code class="docutils literal notranslate"><span class="pre">namelist_definition_docn.xml</span></code> for the new mode</p>
-</li>
+<li><p>add additional changes to <code class="docutils literal notranslate"><span class="pre">namelist_definition_docn.xml</span></code> for the new mode</p></li>
 </ul>
 </li>
 </ol>
-<div class="admonition-todo admonition" id="index-0">
-<p class="first admonition-title">Todo</p>
-<p class="last">Add additional examples for creating a case</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>Add additional examples for creating a case</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
-           </div>
-           <div class="articleComments">
-            
            </div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="grids.html" class="btn btn-neutral float-right" title="3. Model grids" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="cime-internals.html" class="btn btn-neutral" title="1. Main Configuration File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="components.html" class="btn btn-neutral float-left" title="2. Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="grids.html" class="btn btn-neutral float-right" title="4. Model grids" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2017, U.S. National Science Foundation and U.S. Department of Energy.
-
-    </p>
+    <p>&#169; Copyright 2017, U.S. National Science Foundation and U.S. Department of Energy.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
      
 <script>var version_json_loc = "../../../versions.json";</script>
 
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/pop_ver.js"></script>
-    
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+    let baseUriRegex = /(.*\/cime)\/.*/g;
+    let parsedUri = baseUriRegex.exec(document.baseURI);
+
+    if (parsedUri != null && parsedUri.length == 2) {
+      let baseUri = parsedUri[1];
+
+      $.get(`${baseUri}/versions/versions.json`, function(data) {
+        let versionElement = $("#versions");
+
+        Object.keys(data).forEach(function(key) {
+          let value = data[key];
+
+          let item = `<dd><a href="${baseUri}/versions/${key}/html/">${value}</a></dd>`
+
+          versionElement.append(item);
+        });
       });
+    }
   </script>
-   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Read the Docs</span>
+      v: master
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      
+      <dl id="versions">
+        <dt>Versions</dt>
+      </dl>
+      
+      
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
 </body>
 </html>

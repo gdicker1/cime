@@ -2,13 +2,13 @@
 .. _case.qstatus:
 
 ####################################################
-case.qstatus 
+case.qstatus
 ####################################################
 
-**case.qstatus** is a script in CIMEROOT/scripts/Tools.
+**case.qstatus** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./case.qstatus --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

@@ -2,13 +2,13 @@
 .. _save_provenance:
 
 ####################################################
-save_provenance 
+save_provenance
 ####################################################
 
-**save_provenance** is a script in CIMEROOT/scripts/Tools.
+**save_provenance** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./save_provenance --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

@@ -2,13 +2,13 @@
 .. _component_compare_baseline:
 
 ####################################################
-component_compare_baseline 
+component_compare_baseline
 ####################################################
 
-**component_compare_baseline** is a script in CIMEROOT/scripts/Tools.
+**component_compare_baseline** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./component_compare_baseline --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools

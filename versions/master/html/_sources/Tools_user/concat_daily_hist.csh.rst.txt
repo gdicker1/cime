@@ -2,13 +2,13 @@
 .. _concat_daily_hist.csh:
 
 ####################################################
-concat_daily_hist.csh 
+concat_daily_hist.csh
 ####################################################
 
-**concat_daily_hist.csh** is a script in CIMEROOT/scripts/Tools.
+**concat_daily_hist.csh** is a script in CIMEROOT/CIME/Tools.
 
 .. toctree::
    :maxdepth: 1
 
 .. command-output:: ./concat_daily_hist.csh --help
-   :cwd: ../../../scripts/Tools
+   :cwd: ../../../CIME/Tools
